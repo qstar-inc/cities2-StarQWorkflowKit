@@ -91,7 +91,7 @@ namespace StarQWorkflowKit
             Mod.log.Info($"Done.");
         }
 
-        public void CreatePackage(string path, bool folderValid = false)
+        public void CreatePackage(string path, bool folderValid = false, bool direct = false)
         {
             if (!folderValid) path = GetValidFolder(path);
             if (string.IsNullOrEmpty(path))
@@ -102,6 +102,15 @@ namespace StarQWorkflowKit
             Mod.log.Info("Creating Packages...");
 
             string exportFolder = EnvPath.kUserDataPath + "/StreamingData~/~CreatedPackages";
+            
+            if (direct)
+            {
+                string folderName = Path.GetFileName(path);
+                string outputCokPath = Path.Combine(exportFolder, folderName + ".cok");
+                string outputCidPath = Path.Combine(exportFolder, folderName + ".cok.cid");
+                CreateCokAndCid(outputCokPath, outputCidPath, path);
+                return;
+            }
 
             if (!Directory.Exists(exportFolder))
             {

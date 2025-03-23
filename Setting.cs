@@ -58,7 +58,7 @@ namespace StarQWorkflowKit
         [SettingsUISection(MainTab, PrefabSaver)]
         [SettingsUIButton]
         [SettingsUIButtonGroup("CreatePackage")]
-        public bool CreatePackageAny { set { prefab_helper.CreatePackage(CreatePackagePath); } }
+        public bool CreatePackageAny { set { prefab_helper.CreatePackage(CreatePackagePath, direct: true); } }
 
         [SettingsUISection(MainTab, PrefabModifier)]
         [SettingsUITextInput]

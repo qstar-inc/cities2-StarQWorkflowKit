@@ -12,7 +12,7 @@ namespace StarQWorkflowKit
         }
         public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
         {
-            string PathInfo = "Supported paths:\r\n- C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\r\n- StreamingData~\\\\Prefab\r\n- mods_subscribed\\\\12345_0\r\n- Prefab (any StreamingData~ folder)\r\n- StreamingData~ (everything inside StreamingData~, including subfolders  )\r\n- mods_subscribed (everyting inside mods_subscribed, including subfolders)";
+            string PathInfo = "Supported paths:\r\n- C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\r\n- StreamingData~\\\\Prefab\r\n- mods_subscribed\\\\12345_0\r\n- Prefab (any StreamingData~ folder)\r\n- StreamingData~ (everything inside StreamingData~, including subfolders  )\r\n- mods_subscribed (everything inside mods_subscribed, including subfolders)";
             static string Every(string willBe) => $"Every '.Prefab' files in this folder and any subfolders will be {willBe}.";
             return new Dictionary<string, string>
             {
