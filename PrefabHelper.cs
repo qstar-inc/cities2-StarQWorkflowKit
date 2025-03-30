@@ -179,38 +179,101 @@ namespace StarQWorkflowKit
             Mod.log.Info($"Created: {outputCokPath}");
         }
 
-        public void AddEditorAssetCategoryOverride(string path, string cat)
+        public void AddEditorAssetCategoryOverrideInclude(string path, string cat)
         {
             string folderName = GetValidFolder(path);
             
             if (string.IsNullOrEmpty(folderName) || string.IsNullOrEmpty(cat))
             {
-                Mod.log.Info($"Failed to add EditorAssetCategoryOverride: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)}, string.IsNullOrEmpty(cat) : {string.IsNullOrEmpty(cat)} ]");
+                Mod.log.Info($"Failed to add EditorAssetCategoryOverrideInclude: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)}, string.IsNullOrEmpty(cat) : {string.IsNullOrEmpty(cat)} ]");
                 return;
             }
             var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+            bool breakOuterLoop = false;
             foreach (Entity entity in allAssetEntities)
             {
-                string text = "";
                 string entityName = prefabSystem.GetPrefabName(entity);
-                text += entityName;
-                prefabSystem.TryGetPrefab(entity, out PrefabBase bldgPrefab);
+                prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
 
-                if (bldgPrefab.asset == null) continue;
+                if (prefabBase.asset == null) continue;
 
-                string assetPath = bldgPrefab.asset.path;
+                string assetPath = prefabBase.asset.path;
                 if (assetPath.Contains(folderName) && assetPath.EndsWith(".Prefab"))
                 {
-                    text += $" being EditorAssetCategoryOverride added";
-                    EditorAssetCategoryOverride EditorAssetCategoryOverride = bldgPrefab.AddOrGetComponent<EditorAssetCategoryOverride>();
+                    EditorAssetCategoryOverride EditorAssetCategoryOverride = prefabBase.AddOrGetComponent<EditorAssetCategoryOverride>();
                     EditorAssetCategoryOverride.m_IncludeCategories ??= new string[0];
                     Array.Resize(ref EditorAssetCategoryOverride.m_IncludeCategories, EditorAssetCategoryOverride.m_IncludeCategories.Length + 1);
+                    if (EditorAssetCategoryOverride.m_IncludeCategories.Length > 0)
+                    {
+                        foreach (var item in EditorAssetCategoryOverride.m_IncludeCategories)
+                        {
+                            if (item.Equals(cat))
+                            {
+                                breakOuterLoop = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (breakOuterLoop)
+                    {
+                        break;
+                    }
                     EditorAssetCategoryOverride.m_IncludeCategories[EditorAssetCategoryOverride.m_IncludeCategories.Length - 1] = cat;
 
-                    AssetDataPath adp_main = AssetDataPath.Create(bldgPrefab.asset.subPath, bldgPrefab.asset.name, EscapeStrategy.None);
-                    AssetDatabase.user.AddAsset(adp_main, bldgPrefab).Save(GetPrefabContentType(bldgPrefab), false, true);
-                    Mod.log.Info(text);
+                    AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
+                    AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
+                    Mod.log.Info($"{cat} (EditorAssetCategoryOverride.m_IncludeCategories) added to {entityName}");
+                    prefabSystem.UpdatePrefab(prefabBase);
                 }
+            }
+        }
+
+        public void AddEditorAssetCategoryOverrideExclude(string path, string cat)
+        {
+            string folderName = GetValidFolder(path);
+
+            if (string.IsNullOrEmpty(folderName) || string.IsNullOrEmpty(cat))
+            {
+                Mod.log.Info($"Failed to add EditorAssetCategoryOverrideExclude: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)}, string.IsNullOrEmpty(cat) : {string.IsNullOrEmpty(cat)} ]");
+                return;
+            }
+            var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+            bool breakOuterLoop = false;
+            foreach (Entity entity in allAssetEntities)
+            {
+                string entityName = prefabSystem.GetPrefabName(entity);
+                prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+
+                if (prefabBase.asset == null) continue;
+
+                string assetPath = prefabBase.asset.path;
+                if (assetPath.Contains(folderName) && assetPath.EndsWith(".Prefab"))
+                {
+                    EditorAssetCategoryOverride EditorAssetCategoryOverride = prefabBase.AddOrGetComponent<EditorAssetCategoryOverride>();
+                    EditorAssetCategoryOverride.m_ExcludeCategories ??= new string[0];
+                    Array.Resize(ref EditorAssetCategoryOverride.m_ExcludeCategories, EditorAssetCategoryOverride.m_ExcludeCategories.Length + 1);
+                    if (EditorAssetCategoryOverride.m_ExcludeCategories.Length > 0)
+                    {
+                        foreach (var item in EditorAssetCategoryOverride.m_ExcludeCategories)
+                        {
+                            if (item.Equals(cat))
+                            {
+                                breakOuterLoop = true;
+                                break;
+                            }
+                        }
+                }
+                    if (breakOuterLoop)
+                    {
+                        break;
+            }
+                    EditorAssetCategoryOverride.m_ExcludeCategories[EditorAssetCategoryOverride.m_ExcludeCategories.Length - 1] = cat;
+
+                    AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
+                    AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
+                    Mod.log.Info($"{cat} (EditorAssetCategoryOverride.m_ExcludeCategories) added to {entityName}");
+                    prefabSystem.UpdatePrefab(prefabBase);
+        }
             }
         }
 
@@ -226,18 +289,15 @@ namespace StarQWorkflowKit
             var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
             foreach (Entity entity in allAssetEntities)
             {
-                string text = "";
                 string entityName = prefabSystem.GetPrefabName(entity);
-                text += entityName;
-                prefabSystem.TryGetPrefab(entity, out PrefabBase bldgPrefab);
+                prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
 
-                if (bldgPrefab.asset == null) continue;
+                if (prefabBase.asset == null) continue;
 
-                string assetPath = bldgPrefab.asset.path;
+                string assetPath = prefabBase.asset.path;
                 if (assetPath.Contains(folderName) && assetPath.EndsWith(".Prefab"))
                 {
-                    text += $" being UI Icon added";
-                    UIObject UIObjectComp = bldgPrefab.AddOrGetComponent<UIObject>();
+                    UIObject UIObjectComp = prefabBase.AddOrGetComponent<UIObject>();
 
                     string pngPath = assetPath.Replace(".Prefab", ".png");
                     string pngCidPath = assetPath.Replace(".Prefab", ".png.cid");
@@ -259,14 +319,51 @@ namespace StarQWorkflowKit
                         {
                             UIObjectComp.m_Icon = $"assetdb://Global/{cid}";
 
-                            AssetDataPath adp_main = AssetDataPath.Create(bldgPrefab.asset.subPath, bldgPrefab.asset.name, EscapeStrategy.None);
-                            AssetDatabase.user.AddAsset(adp_main, bldgPrefab).Save(GetPrefabContentType(bldgPrefab), false, true);
-                            Mod.log.Info(text);
+                            AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
+                            AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
+                            Mod.log.Info($"Icon being added to {entityName}");
+                            prefabSystem.UpdatePrefab(prefabBase);
                         }
                     }
                     else
                     {
                         Mod.log.Info($"No icon found for {entityName}");
+                    }
+                }
+            }
+        }
+
+        public void AddUIGroup(string path, string uiGroup)
+        {
+            string folderName = GetValidFolder(path);
+
+            if (string.IsNullOrEmpty(folderName))
+            {
+                Mod.log.Info($"Failed to add UIGroup: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)} ]");
+                return;
+            }
+
+            if (prefabSystem.TryGetPrefab(new PrefabID("UIAssetCategoryPrefab", uiGroup), out PrefabBase assetCat))
+            {
+                var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+                foreach (Entity entity in allAssetEntities)
+                {
+                    string entityName = prefabSystem.GetPrefabName(entity);
+                    prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+
+                    if (prefabBase.asset == null) continue;
+                    if (prefabBase.prefab.GetType() == typeof(RenderPrefab)) continue;
+
+                    if (prefabBase.asset.path.Contains(folderName))
+                    {
+                        UIObject UIObject = prefabBase.AddOrGetComponent<UIObject>();
+
+                        UIObject.m_Group ??= (UIGroupPrefab)assetCat;
+
+                        AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
+                        AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
+                        Mod.log.Info($"{uiGroup} being added to {entityName}");
+                        prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
             }
@@ -285,20 +382,19 @@ namespace StarQWorkflowKit
             {
                 string text = "";
                 string entityName = prefabSystem.GetPrefabName(entity);
-                text += entityName;
-                prefabSystem.TryGetPrefab(entity, out PrefabBase bldgPrefab);
+                prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
 
-                if (bldgPrefab.asset == null) continue;
+                if (prefabBase.asset == null) continue;
 
-                string assetPath = bldgPrefab.asset.path;
+                string assetPath = prefabBase.asset.path;
                 if (assetPath.Contains(folderName))
                 {
-                    text += $" being ObsoleteIdentifiers removed";
-                    bldgPrefab.Remove<ObsoleteIdentifiers>();
+                    prefabBase.Remove<ObsoleteIdentifiers>();
 
-                    AssetDataPath adp_main = AssetDataPath.Create(bldgPrefab.asset.subPath, bldgPrefab.asset.name, EscapeStrategy.None);
-                    AssetDatabase.user.AddAsset(adp_main, bldgPrefab).Save(GetPrefabContentType(bldgPrefab), false, true);
-                    Mod.log.Info(text);
+                    AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
+                    AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
+                    Mod.log.Info($"Removing ObsoleteIdentifiers from {entityName}");
+                    prefabSystem.UpdatePrefab(prefabBase);
                 }
             }
         }
@@ -315,28 +411,102 @@ namespace StarQWorkflowKit
             Mod.log.Info($"Testing {allAssetEntities.Length} entities");
             foreach (Entity entity in allAssetEntities)
             {
+                string entityName = prefabSystem.GetPrefabName(entity);
+                prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+
+                if (prefabBase.asset == null) continue;
+
+                string assetPath = prefabBase.asset.path;
+                if (assetPath.Contains(folderName))
+                {
+                    prefabBase.Remove<SpawnableObject>();
+
+                    AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
+                    AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
+                    Mod.log.Info($"Removing SpawnableObject from {entityName}");
+                    prefabSystem.UpdatePrefab(prefabBase);
+                }
+            }
+        }
+
+        public void AddAssetPack(string path, string pack)
+        {
+            string folderName = GetValidFolder(path);
+
+            if (string.IsNullOrEmpty(folderName))
+            {
+                Mod.log.Info($"Failed to add AssetPackPrefab: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)} ]");
+                return;
+            }
+
+            if (prefabSystem.TryGetPrefab(new PrefabID("AssetPackPrefab", pack), out PrefabBase assetPackPrefab))
+            {
+                var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+                foreach (Entity entity in allAssetEntities)
+                {
+                    string entityName = prefabSystem.GetPrefabName(entity);
+                    prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+
+                    if (prefabBase.asset == null) continue;
+                    if (prefabBase.prefab.GetType() == typeof(RenderPrefab)) continue;
+
+                    if (prefabBase.asset.path.Contains(folderName))
+                    {
+                        AssetPackPrefab apPrefab = (AssetPackPrefab)assetPackPrefab;
+                        AssetPackItem AssetPackItem = prefabBase.AddOrGetComponent<AssetPackItem>();
+
+                        AssetPackItem.m_Packs ??= new AssetPackPrefab[0];
+                        Array.Resize(ref AssetPackItem.m_Packs, AssetPackItem.m_Packs.Length + 1);
+                        AssetPackItem.m_Packs[AssetPackItem.m_Packs.Length - 1] = apPrefab;
+
+                        AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
+                        AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
+                        Mod.log.Info($"Adding {pack} to {entityName}");
+                        prefabSystem.UpdatePrefab(prefabBase);
+                    }
+                }
+            }
+        }
+
+        public void RemoveAssetPacks(string path)
+        {
+            string folderName = GetValidFolder(path);
+            if (string.IsNullOrEmpty(folderName))
+            {
+                Mod.log.Info($"Failed to remove AssetPackPrefab: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)} ]");
+                return;
+            }
+            var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+            foreach (Entity entity in allAssetEntities)
+            {
                 string text = "";
                 string entityName = prefabSystem.GetPrefabName(entity);
                 text += entityName;
-                prefabSystem.TryGetPrefab(entity, out PrefabBase bldgPrefab);
+                prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
 
-                if (bldgPrefab.asset == null) continue;
+                if (prefabBase.asset == null) continue;
 
-                string assetPath = bldgPrefab.asset.path;
+                string assetPath = prefabBase.asset.path;
                 if (assetPath.Contains(folderName))
                 {
-                    text += $" being SpawnableObject removed";
-                    bldgPrefab.Remove<SpawnableObject>();
+                    text += $" being AssetPackPrefab removed";
+                    prefabBase.Remove<AssetPackItem>();
 
                     AssetDataPath adp_main = AssetDataPath.Create(bldgPrefab.asset.subPath, bldgPrefab.asset.name, EscapeStrategy.None);
                     AssetDatabase.user.AddAsset(adp_main, bldgPrefab).Save(GetPrefabContentType(bldgPrefab), false, true);
                     Mod.log.Info(text);
+                    prefabSystem.UpdatePrefab(prefabBase);
                 }
             }
         }
 
         public string GetValidFolder(string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                return string.Empty;
+            }
+
             path = path.Replace("\\", "/");
             path = path.Trim('/');
             string folder = path;

@@ -4,19 +4,20 @@ using Game.Modding;
 using Game.SceneFlow;
 using Game;
 using System;
+using System.Reflection;
 
 namespace StarQWorkflowKit
 {
     public class Mod : IMod
     {
         public static string Name = "StarQ's Workflow Kit";
-        public static string Version = "1.0.1";
+        public static string Version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
         public static string Author = "StarQ";
 
         public static string time = $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
         public static ILog log = LogManager.GetLogger($"{nameof(StarQWorkflowKit)}").SetShowsErrorsInUI(false);
         public static ILog log_timed = LogManager.GetLogger($"{nameof(StarQWorkflowKit)}_{time}").SetShowsErrorsInUI(false);
-        private Setting m_Setting;
+        public static Setting m_Setting;
 
         public void OnLoad(UpdateSystem updateSystem)
         {

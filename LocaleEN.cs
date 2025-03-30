@@ -12,7 +12,7 @@ namespace StarQWorkflowKit
         }
         public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
         {
-            string PathInfo = "Supported paths:\r\n- C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\r\n- StreamingData~\\\\Prefab\r\n- mods_subscribed\\\\12345_0\r\n- Prefab (any StreamingData~ folder)\r\n- StreamingData~ (everything inside StreamingData~, including subfolders  )\r\n- mods_subscribed (everything inside mods_subscribed, including subfolders)";
+            string PathInfo = "Supported paths:\r\n- C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\r\n- StreamingData~\\\\Prefab\r\n- mods_subscribed\\\\12345_0\r\n- Prefab (any StreamingData~ folder)\r\n- StreamingData~ (everything inside StreamingData~, including subfolders  )\r\n- mods_subscribed (everything inside mods_subscribed, including subfolders)\r\nMove all files you want to add to a separate folders in StreamingData~ and input that folder; which you can then take it to it's original folder. Prefabs in this folder, must be existing in the folder before the game is loaded. Will not work for disabled folders (with . or ~ in front). Will not work for folders outside the game's scope.";
             static string Every(string willBe) => $"Every '.Prefab' files in this folder and any subfolders will be {willBe}.";
             return new Dictionary<string, string>
             {
@@ -41,26 +41,42 @@ namespace StarQWorkflowKit
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResavePrefab)), "Resave Prefabs as is" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResavePrefab)), $"Resave all prefabs in current format; can be used in the event of changed prefab structure, resetting id/type after manually editing prefab, or to recreate CID if not found." },
 
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddUIIconPath)), "Path to folders to add UI icons to" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AddUIIconPath)), $"{Every("resaved with UI icon from png placed with the prefab file on the same directory.")}\r\n{PathInfo}" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Path)), "Path to folders to process prefabs from" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.Path)), $"{Every("resaved with updated the prefab file replacing the original on the same directory.")}\r\n{PathInfo}" },
+
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.UIGroupToAdd)), "The PrefabID of the UIAssetCategoryPrefab" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.UIGroupToAdd)), $"" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddUIGroup)), "Add UIGroup" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AddUIGroup)), $"Modifies original prefab.\r\nCannot be added to RenderPrefabs." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddUIIcon)), "Add UI Icons" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AddUIIcon)), $"Add UI Icons from png file with the same name on the same folder. A CID file for the png will be created automatically if not found." },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.EditorAssetCategoryOverride)), "EditorAssetCategoryOverride Category" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.EditorAssetCategoryOverride)), $"" },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.EditorAssetCategoryOverridePath)), "Path to files to add EditorAssetCategoryOverride to" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.EditorAssetCategoryOverridePath)), $"{Every("resaved with the selected EditorAssetCategoryOverride")}\r\n{PathInfo}" },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddEditorAssetCategoryOverride)), "Add EditorAssetCategoryOverride" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AddEditorAssetCategoryOverride)), $"Modifies original prefab." },
+                //{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.EditorAssetCategoryOverridePath)), "Path to files to add EditorAssetCategoryOverride to" },
+                //{ m_Setting.GetOptionDescLocaleID(nameof(Setting.EditorAssetCategoryOverridePath)), $"{Every("resaved with the selected EditorAssetCategoryOverride")}\r\n{PathInfo}" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddEditorAssetCategoryOverrideInclude)), "Add EditorAssetCategoryOverride Include" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AddEditorAssetCategoryOverrideInclude)), $"Modifies original prefab." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddEditorAssetCategoryOverrideExclude)), "Add EditorAssetCategoryOverride Exclude" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AddEditorAssetCategoryOverrideExclude)), $"Modifies original prefab." },
 
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveObsoletesPath)), "Path to files to remove ObsoleteIdentifiers from" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveObsoletesPath)), $"{Every("resaved with ObsoleteIdentifiers removed")}\r\n{PathInfo}" },
+                //{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveObsoletesPath)), "Path to files to remove ObsoleteIdentifiers from" },
+                //{ m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveObsoletesPath)), $"{Every("resaved with ObsoleteIdentifiers removed")}\r\n{PathInfo}" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveObsoletes)), "Remove ObsoleteIdentifiers" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveObsoletes)), $"Modifies original prefab." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveSpawnablesPath)), "Path to files to remove SpawnableObject from" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveSpawnablesPath)), $"{Every("resaved with SpawnableObject removed")}\r\n{PathInfo}" },
+
+                //{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveSpawnablesPath)), "Path to files to remove SpawnableObject from" },
+                //{ m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveSpawnablesPath)), $"{Every("resaved with SpawnableObject removed")}\r\n{PathInfo}" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveSpawnables)), "Remove SpawnableObject" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveSpawnables)), $"Modifies original prefab." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AssetPackToAdd)), "The PrefabID of the AssetPackPrefab" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AssetPackToAdd)), $"" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddAssetPack)), "Add AssetPack" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AddAssetPack)), $"Modifies original prefab.\r\nCannot be added to RenderPrefabs." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveAssetPack)), "Remove AssetPack" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveAssetPack)), $"Modifies original prefab." },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NameText)), "Mod Name" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.NameText)), "" },

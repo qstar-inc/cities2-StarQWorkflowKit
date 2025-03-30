@@ -62,35 +62,57 @@ namespace StarQWorkflowKit
 
         [SettingsUISection(MainTab, PrefabModifier)]
         [SettingsUITextInput]
-        public string AddUIIconPath { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
 
         [SettingsUISection(MainTab, PrefabModifier)]
-        public bool AddUIIcon { set { prefab_helper.AddUIIcon(AddUIIconPath); } }
+        [SettingsUITextInput]
+        public string UIGroupToAdd { get; set; } = string.Empty;
+
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool AddUIGroup { set { prefab_helper.AddUIGroup(Path, UIGroupToAdd); } }
+
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool AddUIIcon { set { prefab_helper.AddUIIcon(Path); } }
 
         [SettingsUISection(MainTab, PrefabModifier)]
         [SettingsUITextInput]
         public string EditorAssetCategoryOverride { get; set; } = string.Empty;
 
+        //[SettingsUISection(MainTab, PrefabModifier)]
+        //[SettingsUITextInput]
+        //public string EditorAssetCategoryOverridePath { get; set; } = string.Empty;
+
+        [SettingsUIButtonGroup("EditorAssetCategoryOverride")]
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool AddEditorAssetCategoryOverrideInclude { set { prefab_helper.AddEditorAssetCategoryOverrideInclude(Path, EditorAssetCategoryOverride); } }
+
+        [SettingsUIButtonGroup("EditorAssetCategoryOverride")]
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool AddEditorAssetCategoryOverrideExclude { set { prefab_helper.AddEditorAssetCategoryOverrideExclude(Path, EditorAssetCategoryOverride); } }
+
+        //[SettingsUISection(MainTab, PrefabModifier)]
+        //[SettingsUITextInput]
+        //public string RemoveObsoletesPath { get; set; } = string.Empty;
+
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool RemoveObsoletes { set { prefab_helper.RemoveObsoletes(Path); } }
+
+        //[SettingsUISection(MainTab, PrefabModifier)]
+        //[SettingsUITextInput]
+        //public string RemoveSpawnablesPath { get; set; } = string.Empty;
+
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool RemoveSpawnables { set { prefab_helper.RemoveSpawnables(Path); } }
+
         [SettingsUISection(MainTab, PrefabModifier)]
         [SettingsUITextInput]
-        public string EditorAssetCategoryOverridePath { get; set; } = string.Empty;
+        public string AssetPackToAdd { get; set; } = string.Empty;
 
         [SettingsUISection(MainTab, PrefabModifier)]
-        public bool AddEditorAssetCategoryOverride { set { prefab_helper.AddEditorAssetCategoryOverride(EditorAssetCategoryOverridePath, EditorAssetCategoryOverride); } }
+        public bool AddAssetPack { set { prefab_helper.AddAssetPack(Path, AssetPackToAdd); } }
 
         [SettingsUISection(MainTab, PrefabModifier)]
-        [SettingsUITextInput]
-        public string RemoveObsoletesPath { get; set; } = string.Empty;
-
-        [SettingsUISection(MainTab, PrefabModifier)]
-        public bool RemoveObsoletes { set { prefab_helper.RemoveObsoletes(RemoveObsoletesPath); } }
-
-        [SettingsUISection(MainTab, PrefabModifier)]
-        [SettingsUITextInput]
-        public string RemoveSpawnablesPath { get; set; } = string.Empty;
-
-        [SettingsUISection(MainTab, PrefabModifier)]
-        public bool RemoveSpawnables { set { prefab_helper.RemoveSpawnables(RemoveSpawnablesPath); } }
+        public bool RemoveAssetPack { set { prefab_helper.RemoveAssetPacks(Path); } }
 
         public override void SetDefaults()
         {
