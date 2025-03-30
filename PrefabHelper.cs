@@ -41,6 +41,7 @@ namespace StarQWorkflowKit
         {
             ContentType ct = GetPrefabContentType(prefab);
             if (num == 3 || num == 2) ct = ContentType.Binary;
+            if (num == 0) ct = ContentType.Text;
             string xt = ct switch
             {
                 ContentType.Text => " (Text)",
@@ -182,7 +183,7 @@ namespace StarQWorkflowKit
         public void AddEditorAssetCategoryOverrideInclude(string path, string cat)
         {
             string folderName = GetValidFolder(path);
-            
+
             if (string.IsNullOrEmpty(folderName) || string.IsNullOrEmpty(cat))
             {
                 Mod.log.Info($"Failed to add EditorAssetCategoryOverrideInclude: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)}, string.IsNullOrEmpty(cat) : {string.IsNullOrEmpty(cat)} ]");
@@ -262,18 +263,18 @@ namespace StarQWorkflowKit
                                 break;
                             }
                         }
-                }
+                    }
                     if (breakOuterLoop)
                     {
                         break;
-            }
+                    }
                     EditorAssetCategoryOverride.m_ExcludeCategories[EditorAssetCategoryOverride.m_ExcludeCategories.Length - 1] = cat;
 
                     AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
                     AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
                     Mod.log.Info($"{cat} (EditorAssetCategoryOverride.m_ExcludeCategories) added to {entityName}");
                     prefabSystem.UpdatePrefab(prefabBase);
-        }
+                }
             }
         }
 
@@ -315,7 +316,7 @@ namespace StarQWorkflowKit
                             File.WriteAllText(pngCidPath, newCid);
                             cid = newCid;
                         }
-                        if (string.IsNullOrEmpty(cid))
+                        if (!string.IsNullOrEmpty(cid))
                         {
                             UIObjectComp.m_Icon = $"assetdb://Global/{cid}";
 
@@ -380,7 +381,6 @@ namespace StarQWorkflowKit
             var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
             foreach (Entity entity in allAssetEntities)
             {
-                string text = "";
                 string entityName = prefabSystem.GetPrefabName(entity);
                 prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
 
@@ -492,8 +492,8 @@ namespace StarQWorkflowKit
                     text += $" being AssetPackPrefab removed";
                     prefabBase.Remove<AssetPackItem>();
 
-                    AssetDataPath adp_main = AssetDataPath.Create(bldgPrefab.asset.subPath, bldgPrefab.asset.name, EscapeStrategy.None);
-                    AssetDatabase.user.AddAsset(adp_main, bldgPrefab).Save(GetPrefabContentType(bldgPrefab), false, true);
+                    AssetDataPath adp_main = AssetDataPath.Create(prefabBase.asset.subPath, prefabBase.asset.name, EscapeStrategy.None);
+                    AssetDatabase.user.AddAsset(adp_main, prefabBase).Save(GetPrefabContentType(prefabBase), false, true);
                     Mod.log.Info(text);
                     prefabSystem.UpdatePrefab(prefabBase);
                 }

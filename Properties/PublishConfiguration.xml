@@ -14,10 +14,11 @@ This mod modifies experimental custom contents in an irreversible way. The mod a
 	</LongDescription>
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<Tag Value="" />
-	<ModVersion Value="1.0.1" />
+	<ModVersion Value="1.0.3" />
 	<GameVersion Value="1.2.5f1" />
 	<ChangeLog>
-- Intial Release
+- Fix Add UI Icons not working in all cases
+- Add Resave as Text option
 	</ChangeLog>
 	<ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
 </Publish>

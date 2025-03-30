@@ -5,11 +5,11 @@
 		<TargetFramework>net472</TargetFramework>
 		<Configurations>Debug;Release</Configurations>
 		<LangVersion>9</LangVersion>
-		
+
 		<AssemblyName>StarQWorkflowKit</AssemblyName>
 		<AssemblyTitle>StarQ's Workflow Kit</AssemblyTitle>
 		<Authors>StarQ</Authors>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		
 		<!--The file where mod information which is required for publishing mod on PDX mods are stored-->
 		<PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>

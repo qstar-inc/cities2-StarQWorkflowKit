@@ -44,6 +44,11 @@ namespace StarQWorkflowKit
         [SettingsUISection(MainTab, PrefabSaver)]
         [SettingsUIButton]
         [SettingsUIButtonGroup("ResavePrefab")]
+        public bool ResavePrefabT { set { prefab_helper.SaveAsset(ResavePrefabPath, 0); } }
+
+        [SettingsUISection(MainTab, PrefabSaver)]
+        [SettingsUIButton]
+        [SettingsUIButtonGroup("ResavePrefab")]
         public bool ResavePrefabB { set { prefab_helper.SaveAsset(ResavePrefabPath, 3); } }
 
         [SettingsUISection(MainTab, PrefabSaver)]

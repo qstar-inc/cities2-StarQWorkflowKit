@@ -36,8 +36,10 @@ namespace StarQWorkflowKit
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResavePrefabPath)), "Path to folders to resave prefabs from" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResavePrefabPath)), $"{Every("resaved")}\r\n{PathInfo}" },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResavePrefabB)), "Resave Prefabs in Binary" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResavePrefabB)), "Resave Prefabs as Binary" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResavePrefabB)), $"Resave all prefabs in binary format; can be used in the event of changed prefab structure, resetting id/type after manually editing prefab, or to recreate CID if not found." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResavePrefabT)), "Resave Prefabs as Text" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResavePrefabT)), $"Resave all prefabs in text format; can be used in the event of changed prefab structure, resetting id/type after manually editing prefab, or to recreate CID if not found." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResavePrefab)), "Resave Prefabs as is" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResavePrefab)), $"Resave all prefabs in current format; can be used in the event of changed prefab structure, resetting id/type after manually editing prefab, or to recreate CID if not found." },
 
