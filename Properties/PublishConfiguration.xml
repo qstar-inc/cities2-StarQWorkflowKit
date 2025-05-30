@@ -16,11 +16,10 @@ This mod modifies experimental custom contents in an irreversible way. The mod a
 	</LongDescription>
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<Tag Value="Code Mod" />
-	<ModVersion Value="1.0.4" />
+	<ModVersion Value="1.0.5" />
 	<GameVersion Value="1.2.5f1" />
 	<ChangeLog>
-- Add JSON lang file to LOC maker.
-- Add option to include Prefab Type Category on Editor Asset Panel.
+- Editor Asset Category of all non-vanilla items are now sorted alphabetically.
 	</ChangeLog>
 	<ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
 </Publish>

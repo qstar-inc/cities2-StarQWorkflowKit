@@ -9,7 +9,7 @@
 		<AssemblyName>StarQWorkflowKit</AssemblyName>
 		<AssemblyTitle>StarQ's Workflow Kit</AssemblyTitle>
 		<Authors>StarQ</Authors>
-		<Version>1.0.4</Version>
+		<Version>1.0.5</Version>
 		
 		<!--The file where mod information which is required for publishing mod on PDX mods are stored-->
 		<PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
@@ -83,6 +83,10 @@
 		<Reference Update="System.Data">
 			<Private>false</Private>
 		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Lib.Harmony" Version="2.2.2" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -5,6 +5,7 @@ using Colossal.Logging;
 using Game;
 using Game.Modding;
 using Game.SceneFlow;
+using HarmonyLib;
 using Unity.Entities;
 
 namespace StarQWorkflowKit
@@ -33,6 +34,9 @@ namespace StarQWorkflowKit
 
             //if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
             //    log.Info($"Current mod asset at {asset.path}");
+
+            var harmony = new Harmony("StarQ.WorkflowKit");
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
 
             m_Setting = new Setting(this);
             m_Setting.RegisterInOptionsUI();
