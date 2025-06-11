@@ -64,9 +64,12 @@ namespace StarQWorkflowKit
 
                 List<string> cats =
                     editorAssetCategoryOverride.m_IncludeCategories?.ToList() ?? new List<string>();
-                cats.Add(cat);
-                editorAssetCategoryOverride.m_IncludeCategories = cats.ToArray();
-                EntityManager.AddComponent<EditorAssetCategoryOverrideData>(entity);
+                if (!cats.Contains(cat))
+                {
+                    cats.Add(cat);
+                    editorAssetCategoryOverride.m_IncludeCategories = cats.ToArray();
+                    EntityManager.AddComponent<EditorAssetCategoryOverrideData>(entity);
+                }
             }
             Mod.log.Info($"{entities.Length} prefab's category added");
             catsEnabled = true;

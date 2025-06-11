@@ -23,9 +23,6 @@ namespace StarQWorkflowKit
         public static ILog log = LogManager
             .GetLogger($"{nameof(StarQWorkflowKit)}")
             .SetShowsErrorsInUI(false);
-        public static ILog log_timed = LogManager
-            .GetLogger($"{nameof(StarQWorkflowKit)}_{time}")
-            .SetShowsErrorsInUI(false);
         public static Setting m_Setting;
 
         public void OnLoad(UpdateSystem updateSystem)

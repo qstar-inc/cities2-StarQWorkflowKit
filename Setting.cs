@@ -7,7 +7,7 @@ using UnityEngine.Device;
 
 namespace StarQWorkflowKit
 {
-    [FileLocation(nameof(StarQWorkflowKit))]
+    [FileLocation("ModsSettings/StarQ/ " + nameof(StarQWorkflowKit))]
     [SettingsUITabOrder(MainTab, AboutTab)]
     [SettingsUIGroupOrder(Header, PrefabSaver, PrefabModifier, LocaleMaker, EditorModification)]
     [SettingsUIShowGroupName(PrefabSaver, PrefabModifier, LocaleMaker, EditorModification)]
