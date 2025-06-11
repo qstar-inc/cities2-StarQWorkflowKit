@@ -94,6 +94,12 @@ namespace StarQWorkflowKit
         }
 
         [SettingsUISection(MainTab, PrefabModifier)]
+        public bool AddPlaceableObject
+        {
+            set { prefab_helper.AddPlaceableObject(Path); }
+        }
+
+        [SettingsUISection(MainTab, PrefabModifier)]
         [SettingsUITextInput]
         public string UIGroupToAdd { get; set; } = string.Empty;
 

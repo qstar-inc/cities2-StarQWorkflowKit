@@ -400,6 +400,48 @@ namespace StarQWorkflowKit
             }
         }
 
+        public void AddPlaceableObject(string path)
+        {
+            List<string> folderNames = GetValidFolders(path);
+            foreach (var folderName in folderNames)
+            {
+                var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+                foreach (Entity entity in allAssetEntities)
+                {
+                    string entityName = prefabSystem.GetPrefabName(entity);
+                    prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+
+                    if (prefabBase.asset == null)
+                        continue;
+                    if (prefabBase.Has<PlaceableObject>())
+                        continue;
+                    if (prefabBase.prefab.GetType() != typeof(StaticObjectPrefab))
+                        continue;
+
+                    string assetPath = prefabBase.asset.path;
+                    if (assetPath.Contains(folderName) && assetPath.EndsWith(".Prefab"))
+                    {
+                        PlaceableObject PlaceableObjectComp =
+                            prefabBase.AddComponent<PlaceableObject>();
+
+                        PlaceableObjectComp.m_ConstructionCost = 0;
+                        PlaceableObjectComp.m_XPReward = 0;
+
+                        AssetDataPath adp_main = AssetDataPath.Create(
+                            prefabBase.asset.subPath,
+                            prefabBase.asset.name,
+                            EscapeStrategy.None
+                        );
+                        AssetDatabase
+                            .user.AddAsset(adp_main, prefabBase)
+                            .Save(GetPrefabContentType(prefabBase), false, true);
+                        Mod.log.Info($"PlaceableObject being added to {entityName}");
+                        prefabSystem.UpdatePrefab(prefabBase);
+                    }
+                }
+            }
+        }
+
         public void AddUIGroup(string path, string uiGroup)
         {
             List<string> folderNames = GetValidFolders(path);
@@ -635,7 +677,7 @@ namespace StarQWorkflowKit
 
             RecursiveGlob(root, relativePattern, results);
 
-            Mod.log.Info($"{string.Join(", ", results)}");
+            //Mod.log.Info($"{string.Join(", ", results)}");
             return results;
         }
 
@@ -646,7 +688,7 @@ namespace StarQWorkflowKit
                 try
                 {
                     foreach (var dir in Directory.GetDirectories(currentDir, pattern))
-                        results.Add(dir);
+                        results.Add($"{dir.Replace("\\", "/")}/");
                 }
                 catch { }
                 return;

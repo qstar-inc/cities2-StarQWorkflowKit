@@ -130,6 +130,14 @@ namespace StarQWorkflowKit
                     $"Add UI Icons from png file with the same name on the same folder. A CID file for the png will be created automatically if not found."
                 },
                 {
+                    m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddPlaceableObject)),
+                    "Add PlaceableObject"
+                },
+                {
+                    m_Setting.GetOptionDescLocaleID(nameof(Setting.AddPlaceableObject)),
+                    $"Modifies original prefab.\r\nAdds PlaceableObject component to only StaticObjectPrefab if not already present."
+                },
+                {
                     m_Setting.GetOptionLabelLocaleID(nameof(Setting.EditorAssetCategoryOverride)),
                     "EditorAssetCategoryOverride Category"
                 },

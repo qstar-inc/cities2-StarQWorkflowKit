@@ -16,11 +16,11 @@ This mod modifies experimental custom contents in an irreversible way. The mod a
 	</LongDescription>
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<Tag Value="Code Mod" />
-	<ModVersion Value="1.0.6" />
+	<ModVersion Value="1.0.7" />
 	<GameVersion Value="1.3.3f1" />
 	<ChangeLog>
-- Compatibility update for 1.3.3f1.
-- Update to processing paths to support wildcards (\*).
+- Add PlaceableObject prefab.
+- Fix for wildcard folder path not always working.
 	</ChangeLog>
 	<ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
 </Publish>
