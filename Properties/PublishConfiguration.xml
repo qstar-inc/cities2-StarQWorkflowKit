@@ -18,38 +18,15 @@ This mod modify prefabs in an irreversible way. So, make sure to Backup your loc
 ## PDXM CS2 Uploader
 Copy 'PDXM_CS2_Uploader_vX.X.X.exe' to an empty folder outside any CS2 folders. This will be your project file, just for one mod. Launch the script once to let the script set up everything and follow the on-screen instructions.
 
-### Code Insight from VirusTotal
-The script is a batch file designed to manage and prepare data for an external mod publishing tool.
-
-It performs the following actions:
-1.  Path and File Validation: It checks for the existence of a specific directory structure within `%LocalAppData%Low\Colossal Order\Cities Skylines II\.cache\Mods\mods_subscribed`. Within this structure, it searches for a numerically highest-versioned folder matching a pattern (e.g., `92671_XXXXX`) and then a specific batch file (`PDXM_CS2_Uploader*.exe`) within that folder.
-2.  Self-Update Mechanism: It compares its own hardcoded version with a version extracted from the name of the discovered `PDXM_CS2_Uploader*.exe` file. If the discovered file represents a newer version, it copies that file to the current script's directory, overwriting any existing file with the same name.
-3.  Environment Variable Check: It verifies if the `CSII_MODPUBLISHERPATH` environment variable is defined. Its further execution depends on this variable being set.
-4.  Directory Creation and File Extraction:
-    *   It checks for the presence of a `Properties` subdirectory in the current location. If missing, it prompts for creation.
-    *   If `Properties` is created or already exists but `PublishConfiguration.xml` is absent, it uses PowerShell to extract `PublishConfiguration.xml` and `Thumbnail.png` from a local `.nupkg` archive (`ColossalOrder.ModTemplate.1.0.0.nupkg`) located relative to the `CSII_MODPUBLISHERPATH`.
-    *   It also checks for the presence of a `content` subdirectory in the current location. If missing, it prompts for creation.
-5.  Content Folder Validation:
-    *   It recursively enumerates files within the `content` directory, listing them by extension.
-    *   It checks for the presence of files with specific extensions (`.cok`, `.Prefab`, `.Texture`, `.Geometry`, `.Surface`) and validates if corresponding `.cid` files exist for them in the same directory.
-    *   If the root of the `content` directory is empty, it creates a dummy text file (`.dummy.txt`) within it.
-6.  Configuration Parsing and External Execution:
-    *   It extracts `ModId` and `DisplayName` values from the `PublishConfiguration.xml` file.
-    *   Based on the `ModId` value, it determines whether the operation is a "publish" (ModId is 0) or an "update" (ModId is non-zero).
-    *   After user confirmation, it executes an external program whose path is defined by the `CSII_MODPUBLISHERPATH` environment variable, passing the determined action, the `PublishConfiguration.xml` file path, and the `content` directory path as arguments.
-
 # DISCLAIMER
 This mod modifies experimental custom contents in an irreversible way. The mod author is not responsible for any loss of content resulting from its use.
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="2.0.0" />
+  <ModVersion Value="2.0.1" />
   <GameVersion Value="1.3.3f1" />
   <ChangeLog>
-- Uploader script is now shipped with the mod.
-- Fix some localization.
-- Increased logging to help see more issues.
-- In-game log viewer.
+- Uploader script rewrite in .NET6.0.
 	</ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />

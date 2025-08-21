@@ -9,7 +9,6 @@ using Game.Modding;
 using Game.SceneFlow;
 using Game.UI.Localization;
 using HarmonyLib;
-using Unity.Entities;
 
 namespace StarQWorkflowKit
 {
