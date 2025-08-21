@@ -48,7 +48,7 @@ namespace StarQWorkflowKit
                 return;
             }
             var entities = allAssets.ToEntityArray(Allocator.Temp);
-            Mod.log.Info("Starting EnableCats");
+            Mod.SendLog("Starting EnableCats");
 
             foreach (Entity entity in entities)
             {
@@ -71,7 +71,8 @@ namespace StarQWorkflowKit
                     EntityManager.AddComponent<EditorAssetCategoryOverrideData>(entity);
                 }
             }
-            Mod.log.Info($"{entities.Length} prefab's category added");
+            World.GetOrCreateSystemManaged<EditorAssetCategorySystem>().Update();
+            Mod.SendLog($"{entities.Length} prefab's category added");
             catsEnabled = true;
         }
     }

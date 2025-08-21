@@ -8,15 +8,13 @@ using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.PSI.Environment;
 using Game;
-using Game.Buildings;
 using Game.Prefabs;
-using Game.Routes;
 using Game.SceneFlow;
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine.Windows;
+using UnityEngine;
 
 namespace StarQWorkflowKit
 {
@@ -47,23 +45,46 @@ namespace StarQWorkflowKit
                 ContentType.Binary => " (Binary)",
                 _ => "",
             };
+            if (prefab.TryGet(out EditorAssetCategoryOverride eaco))
+            {
+                if (eaco.m_IncludeCategories.Length > 0)
+                {
+                    for (int i = 0; i < eaco.m_IncludeCategories.Length; i++)
+                    {
+                        if (eaco.m_IncludeCategories[i].StartsWith("WorkflowKit"))
+                        {
+                            eaco.m_IncludeCategories = eaco
+                                .m_IncludeCategories.Where((value, index) => index != i)
+                                .ToArray();
+                        }
+                    }
+                    if (
+                        eaco.m_IncludeCategories.Length == 0
+                        && (
+                            eaco.m_ExcludeCategories == null || eaco.m_ExcludeCategories.Length == 0
+                        )
+                    )
+                    {
+                        prefab.Remove<EditorAssetCategoryOverride>();
+                    }
+                }
+            }
+
             if (!noLog)
-                Mod.log.Info($"Saving {prefab.name}{xt}");
+                Mod.SendLog($"Saving {prefab.name}{xt}");
             prefab.asset.Save(ct, false, true);
         }
 
         public void SaveAsset(string path, int num = 1, bool noLog = false)
         {
+            var entities = allAssets.ToEntityArray(Allocator.Temp);
+            Mod.SendLog($"Checking {entities.Count()} entities.");
             List<string> folderNames = GetValidFolders(path);
             foreach (var folderName in folderNames)
             {
-                var entities = allAssets.ToEntityArray(Allocator.Temp);
-                Mod.log.Info($"Checking {entities.Count()} entities.");
-
                 int i = 0;
                 foreach (Entity entity in entities)
                 {
-                    i++;
                     if (
                         EntityManager.TryGetComponent(entity, out PrefabData prefabData)
                         && prefabSystem.TryGetPrefab(prefabData, out PrefabBase prefabBase)
@@ -83,21 +104,24 @@ namespace StarQWorkflowKit
                             )
                             {
                                 DoAsset(prefabBase, num, noLog);
+                                i++;
+                                //Mod.log.Info($"DoAsset({prefabBase.name}, {num}, {noLog})");
                             }
                         }
                         catch (Exception ex)
                         {
-                            Mod.log.Info(ex);
+                            Mod.SendLog($"{ex}");
                         }
                     }
                 }
+                Mod.SendLog($"Resaved {i} prefabs");
                 if (num == 2)
                 {
                     CreatePackage(folderName, true);
                     SaveAsset(path, 1, true);
                 }
             }
-            Mod.log.Info($"Done.");
+            Mod.SendLog($"Done.");
         }
 
         public void CreatePackage(string path, bool folderValid = false, bool direct = false)
@@ -108,11 +132,11 @@ namespace StarQWorkflowKit
 
             if (validPaths == null || validPaths.Count == 0)
             {
-                Mod.log.Info($"Failed to CreatePackage: No valid folder paths found.");
+                Mod.SendLog($"Failed to CreatePackage: No valid folder paths found.");
                 return;
             }
 
-            Mod.log.Info("Creating Packages...");
+            Mod.SendLog("Creating Packages...");
 
             string exportFolder = EnvPath.kUserDataPath + "/StreamingData~/~CreatedPackages";
 
@@ -122,25 +146,26 @@ namespace StarQWorkflowKit
             }
             foreach (var validPath in validPaths)
             {
+                string validPathToUse = validPath.Trim('/');
                 if (direct)
                 {
-                    string folderName = Path.GetFileName(path);
+                    string folderName = Path.GetFileName(validPathToUse);
                     string outputCokPath = Path.Combine(exportFolder, folderName + ".cok");
                     string outputCidPath = Path.Combine(exportFolder, folderName + ".cok.cid");
-                    CreateCokAndCid(outputCokPath, outputCidPath, path);
+                    CreateCokAndCid(outputCokPath, outputCidPath, validPath);
                     continue;
                 }
 
-                if (!Directory.EnumerateDirectories(path).Any())
+                if (!Directory.EnumerateDirectories(validPathToUse).Any())
                 {
-                    string folderName = Path.GetFileName(path);
+                    string folderName = Path.GetFileName(validPathToUse);
                     string outputCokPath = Path.Combine(exportFolder, folderName + ".cok");
                     string outputCidPath = Path.Combine(exportFolder, folderName + ".cok.cid");
-                    CreateCokAndCid(outputCokPath, outputCidPath, path);
+                    CreateCokAndCid(outputCokPath, outputCidPath, validPathToUse);
                 }
                 else
                 {
-                    foreach (string folderPath in Directory.GetDirectories(path))
+                    foreach (string folderPath in Directory.GetDirectories(validPathToUse))
                     {
                         string folderName = Path.GetFileName(folderPath);
                         if (folderName.StartsWith(".") || folderName.StartsWith("~"))
@@ -171,7 +196,8 @@ namespace StarQWorkflowKit
                     )
                 )
                 {
-                    string arcname = filePath[(folderPath.Length + 1)..].Replace("\\", "/");
+                    string arcname = filePath[(folderPath.Trim('/').Length + 1)..]
+                        .Replace("\\", "/");
 
                     try
                     {
@@ -189,7 +215,7 @@ namespace StarQWorkflowKit
                     }
                     catch (Exception ex)
                     {
-                        Mod.log.Info($"Error processing {filePath}: {ex.Message}");
+                        Mod.SendLog($"Error processing {filePath}: {ex.Message}");
                     }
                 }
             }
@@ -197,7 +223,7 @@ namespace StarQWorkflowKit
             string newCid = Colossal.Hash128.CreateGuid(outputCokPath).ToString();
             File.WriteAllText(outputCidPath, newCid);
 
-            Mod.log.Info($"Created: {outputCokPath}");
+            Mod.SendLog($"Created: {outputCokPath}");
         }
 
         public void AddEditorAssetCategoryOverrideInclude(string path, string cat)
@@ -221,6 +247,10 @@ namespace StarQWorkflowKit
                         EditorAssetCategoryOverride EditorAssetCategoryOverride =
                             prefabBase.AddOrGetComponent<EditorAssetCategoryOverride>();
                         EditorAssetCategoryOverride.m_IncludeCategories ??= new string[0];
+                        if (EditorAssetCategoryOverride.m_IncludeCategories == null)
+                        {
+                            Array.Resize(ref EditorAssetCategoryOverride.m_IncludeCategories, 0);
+                        }
                         if (
                             EditorAssetCategoryOverride.m_IncludeCategories.Length == 1
                             && (
@@ -232,15 +262,11 @@ namespace StarQWorkflowKit
                             EditorAssetCategoryOverride.m_IncludeCategories[0] = cat;
                             break;
                         }
-                        Array.Resize(
-                            ref EditorAssetCategoryOverride.m_IncludeCategories,
-                            EditorAssetCategoryOverride.m_IncludeCategories.Length + 1
-                        );
                         if (EditorAssetCategoryOverride.m_IncludeCategories.Length > 0)
                         {
                             foreach (var item in EditorAssetCategoryOverride.m_IncludeCategories)
                             {
-                                if (item.Equals(cat))
+                                if (item != null && item.Equals(cat))
                                 {
                                     breakOuterLoop = true;
                                     break;
@@ -251,6 +277,10 @@ namespace StarQWorkflowKit
                         {
                             break;
                         }
+                        Array.Resize(
+                            ref EditorAssetCategoryOverride.m_IncludeCategories,
+                            EditorAssetCategoryOverride.m_IncludeCategories.Length + 1
+                        );
                         EditorAssetCategoryOverride.m_IncludeCategories[^1] = cat;
 
                         AssetDataPath adp_main = AssetDataPath.Create(
@@ -261,7 +291,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.log.Info(
+                        Mod.SendLog(
                             $"{cat} (EditorAssetCategoryOverride.m_IncludeCategories) added to {entityName}"
                         );
                         prefabSystem.UpdatePrefab(prefabBase);
@@ -291,8 +321,13 @@ namespace StarQWorkflowKit
                         EditorAssetCategoryOverride EditorAssetCategoryOverride =
                             prefabBase.AddOrGetComponent<EditorAssetCategoryOverride>();
                         EditorAssetCategoryOverride.m_ExcludeCategories ??= new string[0];
+
+                        if (EditorAssetCategoryOverride.m_ExcludeCategories == null)
+                        {
+                            Array.Resize(ref EditorAssetCategoryOverride.m_ExcludeCategories, 0);
+                        }
                         if (
-                            EditorAssetCategoryOverride.m_IncludeCategories.Length == 1
+                            EditorAssetCategoryOverride.m_ExcludeCategories.Length == 1
                             && (
                                 EditorAssetCategoryOverride.m_ExcludeCategories[0] == null
                                 || EditorAssetCategoryOverride.m_ExcludeCategories[0] == "null"
@@ -302,15 +337,11 @@ namespace StarQWorkflowKit
                             EditorAssetCategoryOverride.m_ExcludeCategories[0] = cat;
                             break;
                         }
-                        Array.Resize(
-                            ref EditorAssetCategoryOverride.m_ExcludeCategories,
-                            EditorAssetCategoryOverride.m_ExcludeCategories.Length + 1
-                        );
                         if (EditorAssetCategoryOverride.m_ExcludeCategories.Length > 0)
                         {
                             foreach (var item in EditorAssetCategoryOverride.m_ExcludeCategories)
                             {
-                                if (item.Equals(cat))
+                                if (item != null && item.Equals(cat))
                                 {
                                     breakOuterLoop = true;
                                     break;
@@ -321,6 +352,10 @@ namespace StarQWorkflowKit
                         {
                             break;
                         }
+                        Array.Resize(
+                            ref EditorAssetCategoryOverride.m_ExcludeCategories,
+                            EditorAssetCategoryOverride.m_ExcludeCategories.Length + 1
+                        );
                         EditorAssetCategoryOverride.m_ExcludeCategories[^1] = cat;
 
                         AssetDataPath adp_main = AssetDataPath.Create(
@@ -331,7 +366,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.log.Info(
+                        Mod.SendLog(
                             $"{cat} (EditorAssetCategoryOverride.m_ExcludeCategories) added to {entityName}"
                         );
                         prefabSystem.UpdatePrefab(prefabBase);
@@ -387,13 +422,13 @@ namespace StarQWorkflowKit
                                 AssetDatabase
                                     .user.AddAsset(adp_main, prefabBase)
                                     .Save(GetPrefabContentType(prefabBase), false, true);
-                                Mod.log.Info($"Icon being added to {entityName}");
+                                Mod.SendLog($"Icon being added to {entityName}");
                                 prefabSystem.UpdatePrefab(prefabBase);
                             }
                         }
                         else
                         {
-                            Mod.log.Info($"No icon found for {entityName}");
+                            Mod.SendLog($"No icon found for {entityName}");
                         }
                     }
                 }
@@ -435,7 +470,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.log.Info($"PlaceableObject being added to {entityName}");
+                        Mod.SendLog($"PlaceableObject being added to {entityName}");
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -479,7 +514,7 @@ namespace StarQWorkflowKit
                             AssetDatabase
                                 .user.AddAsset(adp_main, prefabBase)
                                 .Save(GetPrefabContentType(prefabBase), false, true);
-                            Mod.log.Info($"{uiGroup} being added to {entityName}");
+                            Mod.SendLog($"{uiGroup} being added to {entityName}");
                             prefabSystem.UpdatePrefab(prefabBase);
                         }
                     }
@@ -514,7 +549,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.log.Info($"Removing ObsoleteIdentifiers from {entityName}");
+                        Mod.SendLog($"Removing ObsoleteIdentifiers from {entityName}");
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -527,7 +562,7 @@ namespace StarQWorkflowKit
             foreach (var folderName in folderNames)
             {
                 var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
-                Mod.log.Info($"Testing {allAssetEntities.Length} entities");
+                Mod.SendLog($"Testing {allAssetEntities.Length} entities");
                 foreach (Entity entity in allAssetEntities)
                 {
                     string entityName = prefabSystem.GetPrefabName(entity);
@@ -549,7 +584,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.log.Info($"Removing SpawnableObject from {entityName}");
+                        Mod.SendLog($"Removing SpawnableObject from {entityName}");
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -561,50 +596,59 @@ namespace StarQWorkflowKit
             List<string> folderNames = GetValidFolders(path);
             foreach (var folderName in folderNames)
             {
-                if (
-                    prefabSystem.TryGetPrefab(
-                        new PrefabID("AssetPackPrefab", pack),
-                        out PrefabBase assetPackPrefab
-                    )
-                )
+                prefabSystem.TryGetPrefab(
+                    new PrefabID("AssetPackPrefab", pack),
+                    out PrefabBase assetPackPrefab
+                );
+                if (!assetPackPrefab)
                 {
-                    var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
-                    foreach (Entity entity in allAssetEntities)
+                    assetPackPrefab = ScriptableObject.CreateInstance<AssetPackPrefab>();
+                    assetPackPrefab.name = pack;
+
+                    AssetDataPath adp_ap = AssetDataPath.Create(
+                        $"StreamingData~/{assetPackPrefab.name}",
+                        $"{assetPackPrefab.name}.Prefab",
+                        EscapeStrategy.None
+                    );
+                    AssetDatabase
+                        .user.AddAsset(adp_ap, assetPackPrefab)
+                        .Save(ContentType.Text, false, true);
+                    Mod.SendLog($"Saving {pack}");
+                    prefabSystem.UpdatePrefab(assetPackPrefab);
+                }
+
+                var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+                foreach (Entity entity in allAssetEntities)
+                {
+                    string entityName = prefabSystem.GetPrefabName(entity);
+                    prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+
+                    if (prefabBase.asset == null)
+                        continue;
+                    if (prefabBase.prefab.GetType() == typeof(RenderPrefab))
+                        continue;
+                    if (prefabBase.prefab.GetType() == typeof(AssetPackPrefab))
+                        continue;
+
+                    if (prefabBase.asset.path.Contains(folderName))
                     {
-                        string entityName = prefabSystem.GetPrefabName(entity);
-                        prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+                        AssetPackPrefab apPrefab = (AssetPackPrefab)assetPackPrefab;
+                        AssetPackItem AssetPackItem = prefabBase.AddOrGetComponent<AssetPackItem>();
 
-                        if (prefabBase.asset == null)
-                            continue;
-                        if (prefabBase.prefab.GetType() == typeof(RenderPrefab))
-                            continue;
-                        if (prefabBase.prefab.GetType() == typeof(AssetPackPrefab))
-                            continue;
+                        AssetPackItem.m_Packs ??= new AssetPackPrefab[0];
+                        Array.Resize(ref AssetPackItem.m_Packs, AssetPackItem.m_Packs.Length + 1);
+                        AssetPackItem.m_Packs[^1] = apPrefab;
 
-                        if (prefabBase.asset.path.Contains(folderName))
-                        {
-                            AssetPackPrefab apPrefab = (AssetPackPrefab)assetPackPrefab;
-                            AssetPackItem AssetPackItem =
-                                prefabBase.AddOrGetComponent<AssetPackItem>();
-
-                            AssetPackItem.m_Packs ??= new AssetPackPrefab[0];
-                            Array.Resize(
-                                ref AssetPackItem.m_Packs,
-                                AssetPackItem.m_Packs.Length + 1
-                            );
-                            AssetPackItem.m_Packs[^1] = apPrefab;
-
-                            AssetDataPath adp_main = AssetDataPath.Create(
-                                prefabBase.asset.subPath,
-                                prefabBase.asset.name,
-                                EscapeStrategy.None
-                            );
-                            AssetDatabase
-                                .user.AddAsset(adp_main, prefabBase)
-                                .Save(GetPrefabContentType(prefabBase), false, true);
-                            Mod.log.Info($"Adding {pack} to {entityName}");
-                            prefabSystem.UpdatePrefab(prefabBase);
-                        }
+                        AssetDataPath adp_main = AssetDataPath.Create(
+                            prefabBase.asset.subPath,
+                            prefabBase.asset.name,
+                            EscapeStrategy.None
+                        );
+                        AssetDatabase
+                            .user.AddAsset(adp_main, prefabBase)
+                            .Save(GetPrefabContentType(prefabBase), false, true);
+                        Mod.SendLog($"Adding {pack} to {entityName}");
+                        prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
             }
@@ -640,7 +684,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.log.Info(text);
+                        Mod.SendLog(text);
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -652,6 +696,7 @@ namespace StarQWorkflowKit
             var results = new List<string>();
             if (string.IsNullOrEmpty(pattern))
             {
+                Mod.SendLog("Folder list is empty");
                 return results;
             }
 
@@ -661,8 +706,11 @@ namespace StarQWorkflowKit
             string relativePattern;
             if (pattern.StartsWith("mods_subscribed"))
             {
-                root = Path.Combine(EnvPath.kCachePathName, "Mods");
-                relativePattern = pattern["mods_subscribed/".Length..];
+                root = Path.Combine(EnvPath.kCacheDataPath, "Mods");
+                const string prefix = "mods_subscribed/";
+                relativePattern = pattern.StartsWith(prefix, StringComparison.Ordinal)
+                    ? pattern[prefix.Length..]
+                    : pattern;
             }
             else if (pattern.StartsWith("StreamingData~"))
             {
@@ -677,7 +725,7 @@ namespace StarQWorkflowKit
 
             RecursiveGlob(root, relativePattern, results);
 
-            //Mod.log.Info($"{string.Join(", ", results)}");
+            Mod.SendLog($"Folders to scan: {string.Join(", ", results)}");
             return results;
         }
 
@@ -722,14 +770,14 @@ namespace StarQWorkflowKit
                 .localizationManager;
             if (string.IsNullOrEmpty(path))
             {
-                Mod.log.Info(
+                Mod.SendLog(
                     $"Failed to convert locale: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)} ]"
                 );
                 return;
             }
             if (!File.Exists(path))
             {
-                Mod.log.Info($"File ({path}) not found.");
+                Mod.SendLog($"File ({path}) not found.");
                 return;
             }
 
@@ -738,7 +786,7 @@ namespace StarQWorkflowKit
             string[] supLang = localizationManager.GetSupportedLocales();
             if (!supLang.Contains(lang))
             {
-                Mod.log.Info(
+                Mod.SendLog(
                     $"{lang} is not a supported locale. Try one of these: '{string.Join(",", supLang)}'"
                 );
                 return;
@@ -761,7 +809,7 @@ namespace StarQWorkflowKit
 
                     if (parsed == null)
                     {
-                        Mod.log.Info("JSON is empty or invalid.");
+                        Mod.SendLog("JSON is empty or invalid.");
                         return;
                     }
 
@@ -786,13 +834,13 @@ namespace StarQWorkflowKit
                         groupedByAsset[assetName][kvp.Key] = kvp.Value;
                     }
 
-                    Mod.log.Info(
+                    Mod.SendLog(
                         $"Successfully loaded {parsed.Count} entries for language '{lang}'."
                     );
                 }
                 catch (JsonException ex)
                 {
-                    Mod.log.Info("Invalid JSON: " + ex.Message);
+                    Mod.SendLog("Invalid JSON: " + ex.Message);
                 }
 
                 foreach (var assetEntry in groupedByAsset)
@@ -817,7 +865,7 @@ namespace StarQWorkflowKit
                         )
                     );
                     localeAsset.Save(true);
-                    Mod.log.Info($"Saving {assetName} locales");
+                    Mod.SendLog($"Saving {assetName} locales");
                 }
             }
         }

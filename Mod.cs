@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using Colossal.IO.AssetDatabase;
 using Colossal.Logging;
+using Colossal.PSI.Environment;
 using Game;
 using Game.Modding;
 using Game.SceneFlow;
+using Game.UI.Localization;
 using HarmonyLib;
 using Unity.Entities;
 
@@ -55,6 +58,56 @@ namespace StarQWorkflowKit
             {
                 m_Setting.UnregisterInOptionsUI();
                 m_Setting = null;
+            }
+        }
+
+        public static LocalizedString LogText => LocalizedString.Id(logText);
+        private static string logText = "Nothing logged yet...";
+
+        public static void SendLog(string message, string level = "info")
+        {
+            switch (level)
+            {
+                case "verbose":
+                    log.Verbose(message);
+                    break;
+                case "trace":
+                    log.Trace(message);
+                    break;
+                case "debug":
+                    log.Debug(message);
+                    break;
+                case "info":
+                    log.Info(message);
+                    break;
+                case "warn":
+                    log.Warn(message);
+                    break;
+                case "error":
+                    log.Error(message);
+                    break;
+                case "critical":
+                    log.Critical(message);
+                    break;
+                case "fatal":
+                    log.Fatal(message);
+                    break;
+                case "emergency":
+                    log.Emergency(message);
+                    break;
+                default:
+                    log.Info(message);
+                    break;
+            }
+            try
+            {
+                logText = File.ReadAllText(
+                    $"{EnvPath.kUserDataPath}/Logs/{nameof(StarQWorkflowKit)}.log"
+                );
+            }
+            catch (Exception e)
+            {
+                log.Info(e);
             }
         }
     }

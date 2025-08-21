@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Colossal.IO.AssetDatabase;
+using Colossal.PSI.Environment;
 using Game.Modding;
 using Game.Settings;
 using Unity.Entities;
@@ -8,20 +11,35 @@ using UnityEngine.Device;
 namespace StarQWorkflowKit
 {
     [FileLocation("ModsSettings/StarQ/ " + nameof(StarQWorkflowKit))]
-    [SettingsUITabOrder(MainTab, AboutTab)]
-    [SettingsUIGroupOrder(Header, PrefabSaver, PrefabModifier, LocaleMaker, EditorModification)]
-    [SettingsUIShowGroupName(PrefabSaver, PrefabModifier, LocaleMaker, EditorModification)]
+    [SettingsUITabOrder(MainTab, AboutTab, LogTab)]
+    [SettingsUIGroupOrder(
+        Header,
+        PrefabSaver,
+        PrefabPackager,
+        PrefabModifier,
+        LocaleMaker,
+        EditorModification
+    )]
+    [SettingsUIShowGroupName(
+        PrefabSaver,
+        PrefabPackager,
+        PrefabModifier,
+        LocaleMaker,
+        EditorModification
+    )]
     public class Setting : ModSetting
     {
         public const string MainTab = "Main";
         public const string Header = "Header";
         public const string PrefabSaver = "Prefab Saver";
+        public const string PrefabPackager = "Prefab Packager";
         public const string PrefabModifier = "Prefab Modifier";
         public const string LocaleMaker = "Locale Maker";
         public const string EditorModification = "Editor Modification";
 
         public const string AboutTab = "About";
         public const string InfoGroup = "Info";
+        public const string LogTab = "Log";
 
         private static readonly PrefabHelper prefab_helper =
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabHelper>();
@@ -63,11 +81,11 @@ namespace StarQWorkflowKit
             set { prefab_helper.SaveAsset(ResavePrefabPath, 3); }
         }
 
-        [SettingsUISection(MainTab, PrefabSaver)]
+        [SettingsUISection(MainTab, PrefabPackager)]
         [SettingsUITextInput]
         public string CreatePackagePath { get; set; } = string.Empty;
 
-        [SettingsUISection(MainTab, PrefabSaver)]
+        [SettingsUISection(MainTab, PrefabPackager)]
         [SettingsUIButton]
         [SettingsUIButtonGroup("CreatePackage")]
         public bool CreatePackage
@@ -75,7 +93,7 @@ namespace StarQWorkflowKit
             set { prefab_helper.SaveAsset(CreatePackagePath, 2); }
         }
 
-        [SettingsUISection(MainTab, PrefabSaver)]
+        [SettingsUISection(MainTab, PrefabPackager)]
         [SettingsUIButton]
         [SettingsUIButtonGroup("CreatePackage")]
         public bool CreatePackageAny
@@ -226,8 +244,44 @@ namespace StarQWorkflowKit
                 }
                 catch (Exception e)
                 {
-                    Mod.log.Info(e);
+                    Mod.SendLog($"{e}");
                 }
+            }
+        }
+
+        [SettingsUIButtonGroup("Social")]
+        [SettingsUIButton]
+        [SettingsUISection(AboutTab, InfoGroup)]
+        public bool Discord
+        {
+            set
+            {
+                try
+                {
+                    Application.OpenURL(
+                        $"https://discord.com/channels/1024242828114673724/1353366978210824222"
+                    );
+                }
+                catch (Exception e)
+                {
+                    Mod.SendLog($"{e}");
+                }
+            }
+        }
+
+        [SettingsUIMultilineText]
+        [SettingsUIDisplayName(typeof(Mod), nameof(Mod.LogText))]
+        [SettingsUISection(LogTab, "")]
+        public string LogText => string.Empty;
+
+        [SettingsUISection(LogTab, "")]
+        public bool OpenLog
+        {
+            set
+            {
+                Task.Run(() =>
+                    Process.Start($"{EnvPath.kUserDataPath}/Logs/{nameof(StarQWorkflowKit)}.log")
+                );
             }
         }
     }

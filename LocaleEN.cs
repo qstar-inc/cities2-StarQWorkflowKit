@@ -25,7 +25,7 @@ namespace StarQWorkflowKit
                 .instance
                 .localizationManager;
             string PathInfo =
-                "Supported paths:\r\n- C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\r\n- StreamingData~\\\\Prefab\r\n- mods_subscribed\\\\12345_0\r\n- Prefab (any StreamingData~ folder)\r\n- StreamingData~ (everything inside StreamingData~, including subfolders  )\r\n- mods_subscribed (everything inside mods_subscribed, including subfolders)\r\nMove all files you want to add to a separate folders in StreamingData~ and input that folder; which you can then take it to it's original folder. Prefabs in this folder, must be existing in the folder before the game is loaded. `*`s are supported for paths like `\\A*\\B` or `\\A\\*\\B`. Will not work for disabled folders (with . or ~ in front). Will not work for folders outside the game's scope.";
+                "Supported paths:\r\n- C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\r\n- StreamingData~\\\\Prefab\r\n- mods_subscribed\\\\12345_0\r\n- Prefab (any StreamingData~ folder)\r\n- StreamingData~ (everything inside StreamingData~, including subfolders  )\r\n- mods_subscribed (everything inside mods_subscribed, including subfolders)\r\nMove all files you want to add to a separate folders in StreamingData~ and input that folder; which you can then take it to it's original folder. Prefabs in this folder, must be existing in the folder before the game is loaded. `*`s are supported for paths like `\\\\A*\\\\B` or `\\\\A\\\\\\*\\\\B`. Will not work for disabled folders (with . or ~ in front). Will not work for folders outside the game's scope.";
             string PathInfoJson =
                 "Supported paths:\r\n- C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\\\\en-US.json\r\n- StreamingData~\\\\Prefab\\\\en-US.json\r\n- F:\\\\Whatever\\\\Folder\\\\Wherever\\\\File.json";
             static string Every(string willBe) =>
@@ -35,7 +35,12 @@ namespace StarQWorkflowKit
                 { m_Setting.GetSettingsLocaleID(), Mod.Name },
                 { m_Setting.GetOptionTabLocaleID(Setting.MainTab), Setting.MainTab },
                 { m_Setting.GetOptionTabLocaleID(Setting.AboutTab), Setting.AboutTab },
+                { m_Setting.GetOptionTabLocaleID(Setting.LogTab), Setting.LogTab },
                 { m_Setting.GetOptionGroupLocaleID(Setting.PrefabSaver), Setting.PrefabSaver },
+                {
+                    m_Setting.GetOptionGroupLocaleID(Setting.PrefabPackager),
+                    Setting.PrefabPackager
+                },
                 {
                     m_Setting.GetOptionGroupLocaleID(Setting.PrefabModifier),
                     Setting.PrefabModifier
@@ -47,7 +52,7 @@ namespace StarQWorkflowKit
                 },
                 {
                     m_Setting.GetOptionLabelLocaleID(nameof(Setting.Disclaimer)),
-                    "DISCLAIMER: This mod modifies prefabs in an irreversible way. Please ensure you have a backup of the StreamingData~ before using it, as changes cannot be undone. The mod author is not responsible for any loss of content resulting from its use.\r\nA game restart is absolutely necessary for the modified assets to be shown up in game.\r\nIf any prefabs from mods_subscribed is modified using any of the methods below, it will change the file integrity of the Prefab thus will show up as \"dirty/modified\" is Simple Mod Checker's mod verification. To restore, simply delete the folder and let the game (or Skyve) redownload it for you."
+                    "DISCLAIMER: This mod modifies prefabs in an irreversible way. Please ensure you have a backup of your processing folder before using it, as changes cannot be undone. The mod author is not responsible for any loss of content resulting from its use.\r\nA game restart is absolutely necessary most of the time for the modified assets to be shown up in game.\r\nIf any prefabs from mods_subscribed is modified using any of the methods below, it will change the file integrity of the Prefab thus will show up as \"dirty/modified\" is Simple Mod Checker's mod verification. To restore, simply delete the folder and let the game (or Skyve) redownload it for you.\r\nWARNING: Do not process files if you've received any errors for that asset on game startup."
                 },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Disclaimer)), "" },
                 {
@@ -64,7 +69,7 @@ namespace StarQWorkflowKit
                 },
                 {
                     m_Setting.GetOptionDescLocaleID(nameof(Setting.CreatePackage)),
-                    $"Create '.cok' packages to 'StreamingData~\\~CreatedPackages' from each subfolders or prefab files.\r\n- If the folder has subfolder, each subfolder will be used to create one cok file, any separate files in the folder will only be reset..\r\n- If the folder only contains files, no folders, then one cok will be created for everything inside the folder.\r\nThe packages won't be available in-game by default, since that will conflict with the original prefab files.\r\nRemove/disable the original prefab folder and move the '.cok' files out of the '~CreatedPackages' folder (or remove the ~ in front of '~CreatedPackages')."
+                    $"Create '.cok' packages to 'StreamingData~\\\\~CreatedPackages' from each subfolders or prefab files.\r\n- If the folder has subfolder, each subfolder will be used to create one cok file, any separate files in the folder will only be reset..\r\n- If the folder only contains files, no folders, then one cok will be created for everything inside the folder.\r\nThe packages won't be available in-game by default, since that will conflict with the original prefab files.\r\nRemove/disable the original prefab folder and move the '.cok' files out of the '~CreatedPackages' folder (or remove the ~ in front of '~CreatedPackages')."
                 },
                 {
                     m_Setting.GetOptionLabelLocaleID(nameof(Setting.CreatePackageAny)),
@@ -72,7 +77,7 @@ namespace StarQWorkflowKit
                 },
                 {
                     m_Setting.GetOptionDescLocaleID(nameof(Setting.CreatePackageAny)),
-                    $"Create '.cok' package to 'StreamingData~\\~CreatedPackages'\r\n- This will create one package for the whole selected path. No prefab processing will be done, but supports subfolders.\r\nThe packages won't be available in-game by default, since that will conflict with the original prefab files.\r\nRemove/disable the original prefab folder and move the '.cok' files out of the '~CreatedPackages' folder (or remove the ~ in front of '~CreatedPackages')."
+                    $"Create '.cok' package to 'StreamingData~\\\\~CreatedPackages'\r\n- This will create one package for the whole selected path. No prefab processing will be done, but supports subfolders.\r\nThe packages won't be available in-game by default, since that will conflict with the original prefab files.\r\nRemove/disable the original prefab folder and move the '.cok' files out of the '~CreatedPackages' folder (or remove the ~ in front of '~CreatedPackages')."
                 },
                 {
                     m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResavePrefabPath)),
@@ -249,6 +254,8 @@ namespace StarQWorkflowKit
                     m_Setting.GetOptionDescLocaleID(nameof(Setting.EnableCats)),
                     $"Enabling this will add a new prefab category on the Editor/Dev Menu Add Objects panel, based on the prefab type. (Only for this session)\r\nIMPORTANT: Saving prefabs with this enable will have the category saved on the prefab file itself. Make sure to remove it manually before saving if you don't want it to be saved."
                 },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.OpenLog)), "Open Log File" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.OpenLog)), "" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NameText)), "Mod Name" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.NameText)), "" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.VersionText)), "Mod Version" },
@@ -259,6 +266,11 @@ namespace StarQWorkflowKit
                 {
                     m_Setting.GetOptionDescLocaleID(nameof(Setting.BMaCLink)),
                     "Support the author."
+                },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Discord)), "Discord" },
+                {
+                    m_Setting.GetOptionDescLocaleID(nameof(Setting.Discord)),
+                    "Feedback/Suggestions for the mod in the Cities: Skylines Modding Server."
                 },
             };
         }
