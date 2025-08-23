@@ -16,17 +16,24 @@ This mod modify prefabs in an irreversible way. So, make sure to Backup your loc
 * That's all... Oh, and the PDX upload script.
 
 ## PDXM CS2 Uploader
-Copy 'PDXM_CS2_Uploader_vX.X.X.exe' to an empty folder outside any CS2 folders. This will be your project file, just for one mod. Launch the script once to let the script set up everything and follow the on-screen instructions.
+Make sure the Modding Toolchain is completely installed. .NET6.0 (which is part of the Modding Toolchain .NET SDK) is required for the Uploader to open up.
+Copy 'PDXM_CS2_Uploader_vX.X.X.exe' to an empty folder outside any CS2 folders. This will be your project folder, just for one mod. Launch the application once to set up folder structure following the on-screen instructions.
+VT Scan: https://www.virustotal.com/gui/file/278f418a39e7939fe98c2c335647c28513be2e8bd94837bdd5c36870da55641d
 
-# DISCLAIMER
-This mod modifies experimental custom contents in an irreversible way. The mod author is not responsible for any loss of content resulting from its use.
+## DISCLAIMER
+This mod modifies experimental custom contents in an irreversible way.
+The mod author is not responsible for any change in content resulting from its use.
+The mod author is not responsible for any content uploaded using the PDXM CS2 Uploader.
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="2.0.1" />
+  <ModVersion Value="2.0.2" />
   <GameVersion Value="1.3.3f1" />
   <ChangeLog>
-- Uploader script rewrite in .NET6.0.
+- Uploader 2.0.2: Reduce prompts
+- Uploader 2.0.2: Fix update check bug
+- Uploader 2.0.2: Changed text colors
+- Uploader 2.0.2: Added translation support
 	</ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />
