@@ -1,0 +1,4 @@
+
+  // "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.Disclaimer]": "",
+  // "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.CreatePackage]": "Create Binary Package(s)",
+  // "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.CreatePackage]": "Create '.cok' packages to 'StreamingData~\\\\~CreatedPackages' from each subfolders or prefab files.\n- If the folder has subfolder, each subfolder will be used to create one cok file, any separate files in the folder will only be reset..\n- If the folder only contains files, no folders, then one cok will be created for everything inside the folder.\nThe packages won't be available in-game by default, since that will conflict with the original prefab files.\nRemove/disable the original prefab folder and move the '.cok' files out of the '~CreatedPackages' folder (or remove the ~ in front of '~CreatedPackages').",

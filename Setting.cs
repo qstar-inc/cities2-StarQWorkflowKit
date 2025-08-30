@@ -5,6 +5,7 @@ using Colossal.IO.AssetDatabase;
 using Colossal.PSI.Environment;
 using Game.Modding;
 using Game.Settings;
+using StarQWorkflowKit.Extensions;
 using Unity.Entities;
 using UnityEngine.Device;
 
@@ -29,17 +30,17 @@ namespace StarQWorkflowKit
     )]
     public class Setting : ModSetting
     {
-        public const string MainTab = "Main";
+        public const string MainTab = "MainTab";
         public const string Header = "Header";
-        public const string PrefabSaver = "Prefab Saver";
-        public const string PrefabPackager = "Prefab Packager";
-        public const string PrefabModifier = "Prefab Modifier";
-        public const string LocaleMaker = "Locale Maker";
-        public const string EditorModification = "Editor Modification";
+        public const string PrefabSaver = "PrefabSaver";
+        public const string PrefabPackager = "PrefabPackager";
+        public const string PrefabModifier = "PrefabModifier";
+        public const string LocaleMaker = "LocaleMaker";
+        public const string EditorModification = "EditorModification";
 
-        public const string AboutTab = "About";
-        public const string InfoGroup = "Info";
-        public const string LogTab = "Log";
+        public const string AboutTab = "AboutTab";
+        public const string InfoGroup = "InfoGroup";
+        public const string LogTab = "LogTab";
 
         private static readonly PrefabHelper prefab_helper =
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabHelper>();
@@ -85,13 +86,13 @@ namespace StarQWorkflowKit
         [SettingsUITextInput]
         public string CreatePackagePath { get; set; } = string.Empty;
 
-        [SettingsUISection(MainTab, PrefabPackager)]
-        [SettingsUIButton]
-        [SettingsUIButtonGroup("CreatePackage")]
-        public bool CreatePackage
-        {
-            set { prefab_helper.SaveAsset(CreatePackagePath, 2); }
-        }
+        //[SettingsUISection(MainTab, PrefabPackager)]
+        //[SettingsUIButton]
+        //[SettingsUIButtonGroup("CreatePackage")]
+        //public bool CreatePackage
+        //{
+        //    set { prefab_helper.SaveAsset(CreatePackagePath, 2); }
+        //}
 
         [SettingsUISection(MainTab, PrefabPackager)]
         [SettingsUIButton]
@@ -106,15 +107,21 @@ namespace StarQWorkflowKit
         public string Path { get; set; } = string.Empty;
 
         [SettingsUISection(MainTab, PrefabModifier)]
-        public bool AddUIIcon
+        [SettingsUITextInput]
+        public string AssetPackToAdd { get; set; } = string.Empty;
+
+        [SettingsUIButtonGroup("AssetPack")]
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool AddAssetPack
         {
-            set { prefab_helper.AddUIIcon(Path); }
+            set { prefab_helper.AddAssetPack(Path, AssetPackToAdd); }
         }
 
+        [SettingsUIButtonGroup("AssetPack")]
         [SettingsUISection(MainTab, PrefabModifier)]
-        public bool AddPlaceableObject
+        public bool RemoveAssetPack
         {
-            set { prefab_helper.AddPlaceableObject(Path); }
+            set { prefab_helper.RemoveAssetPacks(Path); }
         }
 
         [SettingsUISection(MainTab, PrefabModifier)]
@@ -165,6 +172,21 @@ namespace StarQWorkflowKit
         //[SettingsUITextInput]
         //public string RemoveObsoletesPath { get; set; } = string.Empty;
 
+        [SettingsUIButtonGroup("PrefabAdd")]
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool AddUIIcon
+        {
+            set { prefab_helper.AddUIIcon(Path); }
+        }
+
+        [SettingsUIButtonGroup("PrefabAdd")]
+        [SettingsUISection(MainTab, PrefabModifier)]
+        public bool AddPlaceableObject
+        {
+            set { prefab_helper.AddPlaceableObject(Path); }
+        }
+
+        [SettingsUIButtonGroup("PrefabRemove")]
         [SettingsUISection(MainTab, PrefabModifier)]
         public bool RemoveObsoletes
         {
@@ -175,26 +197,11 @@ namespace StarQWorkflowKit
         //[SettingsUITextInput]
         //public string RemoveSpawnablesPath { get; set; } = string.Empty;
 
+        [SettingsUIButtonGroup("PrefabRemove")]
         [SettingsUISection(MainTab, PrefabModifier)]
         public bool RemoveSpawnables
         {
             set { prefab_helper.RemoveSpawnables(Path); }
-        }
-
-        [SettingsUISection(MainTab, PrefabModifier)]
-        [SettingsUITextInput]
-        public string AssetPackToAdd { get; set; } = string.Empty;
-
-        [SettingsUISection(MainTab, PrefabModifier)]
-        public bool AddAssetPack
-        {
-            set { prefab_helper.AddAssetPack(Path, AssetPackToAdd); }
-        }
-
-        [SettingsUISection(MainTab, PrefabModifier)]
-        public bool RemoveAssetPack
-        {
-            set { prefab_helper.RemoveAssetPacks(Path); }
         }
 
         [SettingsUISection(MainTab, LocaleMaker)]
@@ -244,7 +251,7 @@ namespace StarQWorkflowKit
                 }
                 catch (Exception e)
                 {
-                    Mod.SendLog($"{e}");
+                    LogHelper.SendLog($"{e}");
                 }
             }
         }
@@ -264,13 +271,13 @@ namespace StarQWorkflowKit
                 }
                 catch (Exception e)
                 {
-                    Mod.SendLog($"{e}");
+                    LogHelper.SendLog($"{e}");
                 }
             }
         }
 
         [SettingsUIMultilineText]
-        [SettingsUIDisplayName(typeof(Mod), nameof(Mod.LogText))]
+        [SettingsUIDisplayName(typeof(LogHelper), nameof(LogHelper.LogText))]
         [SettingsUISection(LogTab, "")]
         public string LogText => string.Empty;
 

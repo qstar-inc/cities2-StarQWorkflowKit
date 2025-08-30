@@ -12,6 +12,7 @@ using Game.Prefabs;
 using Game.SceneFlow;
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
+using StarQWorkflowKit.Extensions;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -71,14 +72,14 @@ namespace StarQWorkflowKit
             }
 
             if (!noLog)
-                Mod.SendLog($"Saving {prefab.name}{xt}");
+                LogHelper.SendLog($"Saving {prefab.name}{xt}");
             prefab.asset.Save(ct, false, true);
         }
 
         public void SaveAsset(string path, int num = 1, bool noLog = false)
         {
             var entities = allAssets.ToEntityArray(Allocator.Temp);
-            Mod.SendLog($"Checking {entities.Count()} entities.");
+            LogHelper.SendLog($"Checking {entities.Count()} entities.");
             List<string> folderNames = GetValidFolders(path);
             foreach (var folderName in folderNames)
             {
@@ -110,18 +111,18 @@ namespace StarQWorkflowKit
                         }
                         catch (Exception ex)
                         {
-                            Mod.SendLog($"{ex}");
+                            LogHelper.SendLog($"{ex}");
                         }
                     }
                 }
-                Mod.SendLog($"Resaved {i} prefabs");
+                LogHelper.SendLog($"Resaved {i} prefabs");
                 if (num == 2)
                 {
                     CreatePackage(folderName, true);
                     SaveAsset(path, 1, true);
                 }
             }
-            Mod.SendLog($"Done.");
+            LogHelper.SendLog($"Done.");
         }
 
         public void CreatePackage(string path, bool folderValid = false, bool direct = false)
@@ -132,11 +133,11 @@ namespace StarQWorkflowKit
 
             if (validPaths == null || validPaths.Count == 0)
             {
-                Mod.SendLog($"Failed to CreatePackage: No valid folder paths found.");
+                LogHelper.SendLog($"Failed to CreatePackage: No valid folder paths found.");
                 return;
             }
 
-            Mod.SendLog("Creating Packages...");
+            LogHelper.SendLog("Creating Packages...");
 
             string exportFolder = EnvPath.kUserDataPath + "/StreamingData~/~CreatedPackages";
 
@@ -215,7 +216,7 @@ namespace StarQWorkflowKit
                     }
                     catch (Exception ex)
                     {
-                        Mod.SendLog($"Error processing {filePath}: {ex.Message}");
+                        LogHelper.SendLog($"Error processing {filePath}: {ex.Message}");
                     }
                 }
             }
@@ -223,7 +224,7 @@ namespace StarQWorkflowKit
             string newCid = Colossal.Hash128.CreateGuid(outputCokPath).ToString();
             File.WriteAllText(outputCidPath, newCid);
 
-            Mod.SendLog($"Created: {outputCokPath}");
+            LogHelper.SendLog($"Created: {outputCokPath}");
         }
 
         public void AddEditorAssetCategoryOverrideInclude(string path, string cat)
@@ -291,7 +292,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.SendLog(
+                        LogHelper.SendLog(
                             $"{cat} (EditorAssetCategoryOverride.m_IncludeCategories) added to {entityName}"
                         );
                         prefabSystem.UpdatePrefab(prefabBase);
@@ -366,7 +367,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.SendLog(
+                        LogHelper.SendLog(
                             $"{cat} (EditorAssetCategoryOverride.m_ExcludeCategories) added to {entityName}"
                         );
                         prefabSystem.UpdatePrefab(prefabBase);
@@ -422,13 +423,13 @@ namespace StarQWorkflowKit
                                 AssetDatabase
                                     .user.AddAsset(adp_main, prefabBase)
                                     .Save(GetPrefabContentType(prefabBase), false, true);
-                                Mod.SendLog($"Icon being added to {entityName}");
+                                LogHelper.SendLog($"Icon being added to {entityName}");
                                 prefabSystem.UpdatePrefab(prefabBase);
                             }
                         }
                         else
                         {
-                            Mod.SendLog($"No icon found for {entityName}");
+                            LogHelper.SendLog($"No icon found for {entityName}");
                         }
                     }
                 }
@@ -470,7 +471,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.SendLog($"PlaceableObject being added to {entityName}");
+                        LogHelper.SendLog($"PlaceableObject being added to {entityName}");
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -514,7 +515,7 @@ namespace StarQWorkflowKit
                             AssetDatabase
                                 .user.AddAsset(adp_main, prefabBase)
                                 .Save(GetPrefabContentType(prefabBase), false, true);
-                            Mod.SendLog($"{uiGroup} being added to {entityName}");
+                            LogHelper.SendLog($"{uiGroup} being added to {entityName}");
                             prefabSystem.UpdatePrefab(prefabBase);
                         }
                     }
@@ -549,7 +550,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.SendLog($"Removing ObsoleteIdentifiers from {entityName}");
+                        LogHelper.SendLog($"Removing ObsoleteIdentifiers from {entityName}");
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -562,7 +563,7 @@ namespace StarQWorkflowKit
             foreach (var folderName in folderNames)
             {
                 var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
-                Mod.SendLog($"Testing {allAssetEntities.Length} entities");
+                LogHelper.SendLog($"Testing {allAssetEntities.Length} entities");
                 foreach (Entity entity in allAssetEntities)
                 {
                     string entityName = prefabSystem.GetPrefabName(entity);
@@ -584,7 +585,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.SendLog($"Removing SpawnableObject from {entityName}");
+                        LogHelper.SendLog($"Removing SpawnableObject from {entityName}");
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -613,7 +614,7 @@ namespace StarQWorkflowKit
                     AssetDatabase
                         .user.AddAsset(adp_ap, assetPackPrefab)
                         .Save(ContentType.Text, false, true);
-                    Mod.SendLog($"Saving {pack}");
+                    LogHelper.SendLog($"Saving {pack}");
                     prefabSystem.UpdatePrefab(assetPackPrefab);
                 }
 
@@ -647,7 +648,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.SendLog($"Adding {pack} to {entityName}");
+                        LogHelper.SendLog($"Adding {pack} to {entityName}");
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -684,7 +685,7 @@ namespace StarQWorkflowKit
                         AssetDatabase
                             .user.AddAsset(adp_main, prefabBase)
                             .Save(GetPrefabContentType(prefabBase), false, true);
-                        Mod.SendLog(text);
+                        LogHelper.SendLog(text);
                         prefabSystem.UpdatePrefab(prefabBase);
                     }
                 }
@@ -696,11 +697,11 @@ namespace StarQWorkflowKit
             var results = new List<string>();
             if (string.IsNullOrEmpty(pattern))
             {
-                Mod.SendLog("Folder list is empty");
+                LogHelper.SendLog("Folder list is empty");
                 return results;
             }
 
-            pattern = pattern.Replace("\\", "/").Trim('/');
+            pattern = pattern.Replace("\\", "/").Trim('/').Replace("\"", "");
 
             string root;
             string relativePattern;
@@ -725,7 +726,7 @@ namespace StarQWorkflowKit
 
             RecursiveGlob(root, relativePattern, results);
 
-            Mod.SendLog($"Folders to scan: {string.Join(", ", results)}");
+            LogHelper.SendLog($"Folders to scan: {string.Join(", ", results)}");
             return results;
         }
 
@@ -770,27 +771,27 @@ namespace StarQWorkflowKit
                 .localizationManager;
             if (string.IsNullOrEmpty(path))
             {
-                Mod.SendLog(
+                LogHelper.SendLog(
                     $"Failed to convert locale: [ string.IsNullOrEmpty(path) : {string.IsNullOrEmpty(path)} ]"
                 );
                 return;
             }
             if (!File.Exists(path))
             {
-                Mod.SendLog($"File ({path}) not found.");
+                LogHelper.SendLog($"File ({path}) not found.");
                 return;
             }
 
             Dictionary<string, LocaleData> dictionary = new();
 
-            string[] supLang = localizationManager.GetSupportedLocales();
-            if (!supLang.Contains(lang))
-            {
-                Mod.SendLog(
-                    $"{lang} is not a supported locale. Try one of these: '{string.Join(",", supLang)}'"
-                );
-                return;
-            }
+            //string[] supLang = localizationManager.GetSupportedLocales();
+            //if (!supLang.Contains(lang))
+            //{
+            //    LogHelper.SendLog(
+            //        $"{lang} is not a supported locale. Try one of these: '{string.Join(",", supLang)}'"
+            //    );
+            //    return;
+            //}
             if (!dictionary.ContainsKey(lang))
             {
                 dictionary[lang] = new LocaleData(
@@ -809,7 +810,7 @@ namespace StarQWorkflowKit
 
                     if (parsed == null)
                     {
-                        Mod.SendLog("JSON is empty or invalid.");
+                        LogHelper.SendLog("JSON is empty or invalid.");
                         return;
                     }
 
@@ -834,38 +835,49 @@ namespace StarQWorkflowKit
                         groupedByAsset[assetName][kvp.Key] = kvp.Value;
                     }
 
-                    Mod.SendLog(
+                    LogHelper.SendLog(
                         $"Successfully loaded {parsed.Count} entries for language '{lang}'."
                     );
                 }
                 catch (JsonException ex)
                 {
-                    Mod.SendLog("Invalid JSON: " + ex.Message);
+                    LogHelper.SendLog("Invalid JSON: " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.SendLog("Unknown Error: " + ex.Message);
                 }
 
                 foreach (var assetEntry in groupedByAsset)
                 {
-                    string assetName = assetEntry.Key;
-                    Dictionary<string, string> entries = assetEntry.Value;
-                    LocaleData localeData = new(lang, entries, new Dictionary<string, int>());
+                    try
+                    {
+                        string assetName = assetEntry.Key;
+                        Dictionary<string, string> entries = assetEntry.Value;
+                        LocaleData localeData = new(lang, entries, new Dictionary<string, int>());
 
-                    LocaleAsset localeAsset = AssetDatabase.user.AddAsset<LocaleAsset>(
-                        AssetDataPath.Create(
-                            $"StreamingData~/CreatedLocalization/" + assetName,
-                            assetName + "_" + localeData.localeId,
-                            EscapeStrategy.Filename
-                        ),
-                        default
-                    );
-                    localeAsset.SetData(
-                        localeData,
-                        localizationManager.LocaleIdToSystemLanguage(localeData.localeId),
-                        GameManager.instance.localizationManager.GetLocalizedName(
-                            localeData.localeId
-                        )
-                    );
-                    localeAsset.Save(true);
-                    Mod.SendLog($"Saving {assetName} locales");
+                        LocaleAsset localeAsset = AssetDatabase.user.AddAsset<LocaleAsset>(
+                            AssetDataPath.Create(
+                                $"StreamingData~/CreatedLocalization/" + assetName,
+                                assetName + "_" + localeData.localeId,
+                                EscapeStrategy.PathAndFilename
+                            ),
+                            default
+                        );
+                        localeAsset.SetData(
+                            localeData,
+                            localizationManager.LocaleIdToSystemLanguage(localeData.localeId),
+                            GameManager.instance.localizationManager.GetLocalizedName(
+                                localeData.localeId
+                            )
+                        );
+                        localeAsset.Save(true);
+                        LogHelper.SendLog($"Saving {assetName} locales");
+                    }
+                    catch (Exception ex)
+                    {
+                        LogHelper.SendLog("Unknown Error: " + ex.Message);
+                    }
                 }
             }
         }

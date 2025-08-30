@@ -8,6 +8,7 @@ using Game.Prefabs;
 using Game.Simulation;
 using Game.UI.Editor;
 using Game.Vehicles;
+using StarQWorkflowKit.Extensions;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -48,7 +49,7 @@ namespace StarQWorkflowKit
                 return;
             }
             var entities = allAssets.ToEntityArray(Allocator.Temp);
-            Mod.SendLog("Starting EnableCats");
+            LogHelper.SendLog("Starting EnableCats");
 
             foreach (Entity entity in entities)
             {
@@ -72,7 +73,7 @@ namespace StarQWorkflowKit
                 }
             }
             World.GetOrCreateSystemManaged<EditorAssetCategorySystem>().Update();
-            Mod.SendLog($"{entities.Length} prefab's category added");
+            LogHelper.SendLog($"{entities.Length} prefab's category added");
             catsEnabled = true;
         }
     }
