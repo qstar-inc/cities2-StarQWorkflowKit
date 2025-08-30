@@ -13,9 +13,11 @@ This mod modify prefabs in an irreversible way. So, make sure to Backup your loc
 * Prefab Modifier: Bulk prefab modification to add UI Icons, PlaceableObject, UIGroup, EditorAssetCategoryOverride, AssetPack; remove ObsoleteIdentifiers, SpawnableObject, AssetPack.
 * Locale Maker: Create vanilla localization files from JSON (I18N) locale.
 * Optional 'EditorAssetCategoryOverride' for all assets based on its prefab type.
+* Auto (Harmony Patch): Sort custom asset's EditorAssetCategoryOverride alphabetically.
+* Auto (Harmony Patch): View hidden configurations ([HideInEditor] attribute) on the Editor Inspector panel, now suffixed with '[*H]'.
 * That's all... Oh, and the PDX upload script.
 
-## PDXM CS2 Uploader
+## PDXM CS2 Uploader v2.0.2
 Make sure the Modding Toolchain is completely installed. .NET6.0 (which is part of the Modding Toolchain .NET SDK) is required for the Uploader to open up.
 Copy 'PDXM_CS2_Uploader_vX.X.X.exe' to an empty folder outside any CS2 folders. This will be your project folder, just for one mod. Launch the application once to set up folder structure following the on-screen instructions.
 VT Scan: https://www.virustotal.com/gui/file/278f418a39e7939fe98c2c335647c28513be2e8bd94837bdd5c36870da55641d
@@ -27,17 +29,11 @@ The mod author is not responsible for any content uploaded using the PDXM CS2 Up
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="2.0.3" />
+  <ModVersion Value="2.0.4" />
   <GameVersion Value="1.3.3*" />
   <ChangeLog>
-- Reorganized options
-- Added support for Native Localization
-- Localization:
-- - Spanish: 70%
-- - Polish: 15%
-- - Portuguese, Brazilian: 100%
-- - Chinese Simplified: 100%
-	</ChangeLog>
+- Add [HideInEditor] remover.
+  </ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />
   <ExternalLink Type="github" Url="https://github.com/qstar-inc/cities2-StarQWorkflowKit" />
