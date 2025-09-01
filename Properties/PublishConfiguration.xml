@@ -26,13 +26,31 @@ VT Scan: https://www.virustotal.com/gui/file/278f418a39e7939fe98c2c335647c28513b
 This mod modifies experimental custom contents in an irreversible way.
 The mod author is not responsible for any change in content resulting from its use.
 The mod author is not responsible for any content uploaded using the PDXM CS2 Uploader.
+
+### Translation Progress:
+- - German: 0%
+- - Spanish: 100%
+- - French: 0%
+- - Italian: 0%
+- - Japanese: 0%
+- - Korean: 0%
+- - Polish: 100%
+- - Portuguese, Brazilian: 100%
+- - Russian: 0%
+- - Chinese Simplified: 100%
+- - Chinese Traditional: 0%
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="2.0.4" />
+  <ModVersion Value="2.0.5" />
   <GameVersion Value="1.3.3*" />
   <ChangeLog>
-- Add [HideInEditor] remover.
+- Fix [H*] suffix on everything, changed to a single * prefix.
+- Translation Progress:
+- - Spanish: 100%
+- - Polish: 100%
+- - Portuguese, Brazilian: 100%
+- - Chinese Simplified: 100%
   </ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />

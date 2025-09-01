@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Game.UI.Editor;
 using Game.UI.Localization;
 using Game.UI.Widgets;
 using HarmonyLib;
@@ -20,17 +21,17 @@ public static class Patch_BuildMembers
 
         foreach (FieldInfo fieldInfo in fields)
         {
+            LocalizedString dName = LocalizedString.Value($"{fieldInfo.Name}");
+
+            if (fieldInfo.GetCustomAttribute<HideInEditorAttribute>() != null)
+            {
+                dName = "* " + dName.value;
+            }
             object value = fieldInfo.GetValue(null);
             ulong num = fromObject(value);
             if (!isFlags || num != 0UL)
             {
-                list.Add(
-                    new EnumMember(
-                        fromObject(value),
-                        LocalizedString.Value($"{fieldInfo.Name} [*H]"),
-                        false
-                    )
-                );
+                list.Add(new EnumMember(fromObject(value), dName, false));
             }
         }
 

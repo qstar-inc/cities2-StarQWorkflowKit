@@ -24,7 +24,7 @@ namespace StarQWorkflowKit
         public static string time = $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
         public static ILog log = LogManager.GetLogger($"{Id}").SetShowsErrorsInUI(false);
         public static Setting m_Setting;
-        public static Dictionary<string, string> localeReplacement;
+        public static readonly Dictionary<string, string> localeReplacement = new();
 
         public void OnLoad(UpdateSystem updateSystem)
         {
@@ -45,18 +45,15 @@ namespace StarQWorkflowKit
             AssetDatabase.global.LoadSettings(Id, m_Setting, new Setting(this));
             updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.PrefabUpdate);
 
-            localeReplacement = new()
-            {
-                {
-                    "GetSupportedLocales",
-                    "- **"
-                        + string.Join(
-                            "**\n- **",
-                            GameManager.instance.localizationManager.GetSupportedLocales()
-                        )
-                        + "**"
-                },
-            };
+            localeReplacement.Add(
+                "GetSupportedLocales",
+                "- **"
+                    + string.Join(
+                        "**\n- **",
+                        GameManager.instance.localizationManager.GetSupportedLocales()
+                    )
+                    + "**"
+            );
         }
 
         public void OnDispose()

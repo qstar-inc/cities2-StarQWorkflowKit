@@ -22,7 +22,7 @@
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.ResavePrefab]": "现有格式",
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.ResavePrefab]": "以当前格式重新保存所有预制件；{StarQWorkflowKit.Mod.ResaveReason}",
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.Path]": "处理预制件的文件夹路径",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.Path]": "此文件夹和任何子文件夹中的每个 .Prefab 文件都将被重新保存，并更新预制文件以替换原始文件。\n{StarQWorkflowKit.Mod.SupportedPrefabPaths}\n{StarQWorkflowKit.Mod.PrefabMustBeActive}",
+  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.Path]": "此文件夹和任何子文件夹中的每个 <.Prefab> 文件都将被重新保存，并更新预制文件以替换原始文件。\n{StarQWorkflowKit.Mod.SupportedPrefabPaths}\n{StarQWorkflowKit.Mod.PrefabMustBeActive}",
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.UIGroupToAdd]": "UIAssetCategoryPrefab 的 PrefabID",
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.UIGroupToAdd]": "{StarQWorkflowKit.Mod.PrefabID}",
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.AddUIGroup]": "添加 UIGroup",

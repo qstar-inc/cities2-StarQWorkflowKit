@@ -4,7 +4,7 @@
     <AssemblyName>StarQWorkflowKit</AssemblyName>
     <AssemblyTitle>StarQ's Workflow Kit</AssemblyTitle>
     <Authors>StarQ</Authors>
-    <Version>2.0.4</Version>
+    <Version>2.0.5</Version>
     <!--The file where mod information which is required for publishing mod on PDX mods are stored-->
     <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
   </PropertyGroup>
