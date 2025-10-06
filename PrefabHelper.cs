@@ -12,7 +12,7 @@ using Game.Prefabs;
 using Game.SceneFlow;
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
-using StarQWorkflowKit.Extensions;
+using StarQ.Shared.Extensions;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;

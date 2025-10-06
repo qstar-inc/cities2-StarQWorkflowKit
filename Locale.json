@@ -84,5 +84,7 @@
   "StarQWorkflowKit.Mod.PrefabID": "The PrefabID is the name of the prefab that is shown in the Editor's Edit Prefab list, not the localized name.",
   "StarQWorkflowKit.Mod.EditorCatsWarning": "IMPORTANT: Saving prefabs with this enable will have the category saved on the prefab file itself. Make sure to remove it manually before saving if you don't want it to be saved, or resave using the <Prefab Resave> buttons above.",
   "StarQWorkflowKit.Mod.ModifiesOriginalPrefab": "Modifies original prefab.",
-  "StarQWorkflowKit.Mod.NoLog": "No log entries yet."
+  "StarQWorkflowKit.Mod.NoLog": "No log entries yet.",
+  "StarQWorkflowKit.Mod.FromWFK": "(From StarQ's Workflow Kit)",
+  //"Editor.TOOLTIP[Game.Prefabs.ServiceUpgrade.m_ForbidMultiple]": "{StarQWorkflowKit.Mod.FromWFK} Allow only one instance of this upgrade to be placed from one main building."
 }

@@ -2,10 +2,11 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Colossal.IO.AssetDatabase;
+using Colossal.Json;
 using Colossal.PSI.Environment;
 using Game.Modding;
 using Game.Settings;
-using StarQWorkflowKit.Extensions;
+using StarQ.Shared.Extensions;
 using Unity.Entities;
 using UnityEngine.Device;
 
@@ -281,6 +282,28 @@ namespace StarQWorkflowKit
         [SettingsUISection(LogTab, "")]
         public string LogText => string.Empty;
 
+        [Exclude]
+        [SettingsUIHidden]
+        public bool IsLogMissing
+        {
+            get
+            {
+                try
+                {
+                    return !System.IO.File.Exists(
+                        $"{EnvPath.kUserDataPath}/Logs/{nameof(StarQWorkflowKit)}.log"
+                    );
+                }
+                catch (Exception e)
+                {
+                    LogHelper.SendLog(e);
+                    return true;
+                }
+            }
+        }
+
+        [SettingsUIButton]
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsLogMissing))]
         [SettingsUISection(LogTab, "")]
         public bool OpenLog
         {

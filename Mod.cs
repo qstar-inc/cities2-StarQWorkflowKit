@@ -7,7 +7,7 @@ using Game;
 using Game.Modding;
 using Game.SceneFlow;
 using HarmonyLib;
-using StarQWorkflowKit.Extensions;
+using StarQ.Shared.Extensions;
 
 namespace StarQWorkflowKit
 {
@@ -24,10 +24,11 @@ namespace StarQWorkflowKit
         public static string time = $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
         public static ILog log = LogManager.GetLogger($"{Id}").SetShowsErrorsInUI(false);
         public static Setting m_Setting;
-        public static readonly Dictionary<string, string> localeReplacement = new();
 
         public void OnLoad(UpdateSystem updateSystem)
         {
+            LogHelper.Init(Id, log);
+            LocaleHelper.Init(Id, GetReplacements);
             foreach (var item in new LocaleHelper($"{Id}.Locale.json").GetAvailableLanguages())
             {
                 GameManager.instance.localizationManager.AddSource(item.LocaleId, item);
@@ -44,16 +45,7 @@ namespace StarQWorkflowKit
 
             AssetDatabase.global.LoadSettings(Id, m_Setting, new Setting(this));
             updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.PrefabUpdate);
-
-            localeReplacement.Add(
-                "GetSupportedLocales",
-                "- **"
-                    + string.Join(
-                        "**\n- **",
-                        GameManager.instance.localizationManager.GetSupportedLocales()
-                    )
-                    + "**"
-            );
+            updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.UIUpdate);
         }
 
         public void OnDispose()
@@ -63,6 +55,22 @@ namespace StarQWorkflowKit
                 m_Setting.UnregisterInOptionsUI();
                 m_Setting = null;
             }
+        }
+
+        public static Dictionary<string, string> GetReplacements()
+        {
+            return new()
+            {
+                {
+                    "GetSupportedLocales",
+                    "- **"
+                        + string.Join(
+                            "**\n- **",
+                            GameManager.instance.localizationManager.GetSupportedLocales()
+                        )
+                        + "**"
+                },
+            };
         }
     }
 }

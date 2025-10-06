@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+using Colossal.Serialization.Entities;
 using Game;
 using Game.Prefabs;
-using Game.Simulation;
 using Game.UI.Editor;
-using Game.Vehicles;
-using StarQWorkflowKit.Extensions;
+using StarQ.Shared.Extensions;
 using Unity.Collections;
 using Unity.Entities;
+using static Game.Rendering.Debug.RenderPrefabRenderer;
 
 namespace StarQWorkflowKit
 {
@@ -18,7 +17,8 @@ namespace StarQWorkflowKit
     {
         private PrefabSystem prefabSystem;
 
-        //private EditorAssetCategorySystem editorAssetCategorySystem;
+        private EditorAssetCategorySystem editorAssetCategorySystem;
+
         //private Dictionary<string, EditorAssetCategory> m_PathMap = new();
         //private List<EditorAssetCategory> m_Categories = new();
         private EntityQuery allAssets;
@@ -28,26 +28,39 @@ namespace StarQWorkflowKit
         {
             base.OnCreate();
             prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
-            //editorAssetCategorySystem = World.GetOrCreateSystemManaged<EditorAssetCategorySystem>();
+            editorAssetCategorySystem = World.GetOrCreateSystemManaged<EditorAssetCategorySystem>();
             allAssets = SystemAPI.QueryBuilder().WithAllRW<PrefabData>().Build();
             catsEnabled = false;
         }
 
-        protected override void OnUpdate()
+        protected override void OnUpdate() { }
+
+        protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
+            base.OnGameLoadingComplete(purpose, mode);
+
             if (Mod.m_Setting.ShowEditorCatsTypeBased)
             {
                 EnableCats();
             }
-            Enabled = false;
         }
 
         internal void EnableCats()
         {
-            if (catsEnabled)
+            Type type = typeof(EditorAssetCategorySystem);
+
+            FieldInfo field = type.GetField(
+                "m_Dirty",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            );
+
+            bool isDirty = (bool)field.GetValue(editorAssetCategorySystem);
+
+            if (catsEnabled && !isDirty)
             {
                 return;
             }
+
             var entities = allAssets.ToEntityArray(Allocator.Temp);
             LogHelper.SendLog("Starting EnableCats");
 
@@ -72,7 +85,15 @@ namespace StarQWorkflowKit
                     EntityManager.AddComponent<EditorAssetCategoryOverrideData>(entity);
                 }
             }
-            World.GetOrCreateSystemManaged<EditorAssetCategorySystem>().Update();
+            editorAssetCategorySystem.Update();
+
+            MethodInfo method = type.GetMethod(
+                "GenerateCategories",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            );
+
+            method?.Invoke(editorAssetCategorySystem, null);
+
             LogHelper.SendLog($"{entities.Length} prefab's category added");
             catsEnabled = true;
         }
