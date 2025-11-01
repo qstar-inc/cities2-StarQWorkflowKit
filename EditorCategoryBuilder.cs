@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,7 +9,6 @@ using Game.UI.Editor;
 using StarQ.Shared.Extensions;
 using Unity.Collections;
 using Unity.Entities;
-using static Game.Rendering.Debug.RenderPrefabRenderer;
 
 namespace StarQWorkflowKit
 {
@@ -33,7 +32,13 @@ namespace StarQWorkflowKit
             catsEnabled = false;
         }
 
-        protected override void OnUpdate() { }
+        protected override void OnUpdate()
+        {
+            if (Mod.m_Setting.ShowEditorCatsTypeBased)
+            {
+                EnableCats();
+            }
+        }
 
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
@@ -57,9 +62,7 @@ namespace StarQWorkflowKit
             bool isDirty = (bool)field.GetValue(editorAssetCategorySystem);
 
             if (catsEnabled && !isDirty)
-            {
                 return;
-            }
 
             var entities = allAssets.ToEntityArray(Allocator.Temp);
             LogHelper.SendLog("Starting EnableCats");

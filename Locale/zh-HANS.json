@@ -1,8 +1,4 @@
 {
-  "Options.SECTION[StarQWorkflowKit.StarQWorkflowKit.Mod]": "StarQ's Workflow Kit",
-  "Options.TAB[StarQWorkflowKit.StarQWorkflowKit.Mod.MainTab]": "主要",
-  "Options.TAB[StarQWorkflowKit.StarQWorkflowKit.Mod.AboutTab]": "模组信息",
-  "Options.TAB[StarQWorkflowKit.StarQWorkflowKit.Mod.LogTab]": "日志",
   "Options.GROUP[StarQWorkflowKit.StarQWorkflowKit.Mod.PrefabSaver]": "保存预制件",
   "Options.GROUP[StarQWorkflowKit.StarQWorkflowKit.Mod.PrefabPackager]": "打包预制件",
   "Options.GROUP[StarQWorkflowKit.StarQWorkflowKit.Mod.PrefabModifier]": "修改预制件",
@@ -57,18 +53,6 @@
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.ShowEditorCatsTypeBased]": "启用此功能后，编辑器/开发者模式菜单的“添加对象”面板将根据预制件类型添加一个新的预制件类别。（只要此功能处于活动状态，每次游戏都会启动）\n{StarQWorkflowKit.Mod.EditorCatsWarning}",
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.EnableCats]": "仅为此会话启用基于 PrefabType 的类别",
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.EnableCats]": "启用此功能后，编辑器/开发者模式菜单的“添加对象”面板将根据预制件类型添加一个新的预制件类别。（仅为此会话）\n{StarQWorkflowKit.Mod.EditorCatsWarning}",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.OpenLog]": "打开日志文件",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.OpenLog]": "在默认的 .log 文件查看器/编辑器中打开日志文件。",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.NameText]": "模组名称",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.NameText]": "模组的名称。",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.VersionText]": "模组版本",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.VersionText]": "模组当前版本。",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.AuthorText]": "作者",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.AuthorText]": "模组的作者。",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.BMaCLink]": "请我喝杯咖啡吧",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.BMaCLink]": "赞助作者。",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.Discord]": "Discord",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.Discord]": "在 Cities: Skylines Modding 频道中反馈/提出建议。",
   "StarQWorkflowKit.Mod.JSONPath": "- **C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\\\\en-US.json**\n- **StreamingData~\\\\Prefab\\\\en-US.json**\n- **F:\\\\Whatever\\\\Folder\\\\Wherever\\\\File.json**\n",
   "StarQWorkflowKit.Mod.PrefabPath1": "- **C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab**\n",
   "StarQWorkflowKit.Mod.PrefabPath2": "- **StreamingData~\\\\Prefab**\n",
@@ -84,5 +68,5 @@
   "StarQWorkflowKit.Mod.PrefabID": "PrefabID 是编辑器的编辑预制件列表中显示的预制件的名称，而不是本地化名称。",
   "StarQWorkflowKit.Mod.EditorCatsWarning": "重要提示：启用此选项后，保存预制件时，类别会保存在预制件文件本身中。如果您不想保存，请务必在保存前手动移除预制件，或者使用上方的“<Prefab Resave>”按钮重新保存。",
   "StarQWorkflowKit.Mod.ModifiesOriginalPrefab": "修改原始预制件。",
-  "StarQWorkflowKit.Mod.NoLog": "暂无日志条目。"
+  "StarQWorkflowKit.Mod.FromWFK": "(来自 StarQ's Workflow Kit 模组)"
 }

@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Colossal.IO.AssetDatabase;
+using Colossal.Localization;
 using Colossal.Logging;
 using Game;
 using Game.Modding;
@@ -14,28 +15,30 @@ namespace StarQWorkflowKit
     public class Mod : IMod
     {
         public static string Id = nameof(StarQWorkflowKit);
-        public static string Name = "StarQ's Workflow Kit";
+        public static string Name = Assembly
+            .GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyTitleAttribute>()
+            .Title;
         public static string Version = Assembly
             .GetExecutingAssembly()
             .GetName()
             .Version.ToString(3);
-        public static string Author = "StarQ";
 
-        public static string time = $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
         public static ILog log = LogManager.GetLogger($"{Id}").SetShowsErrorsInUI(false);
         public static Setting m_Setting;
 
+        public static string time = $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
+
         public void OnLoad(UpdateSystem updateSystem)
         {
+            LocalizationManager locMan = GameManager.instance.localizationManager;
             LogHelper.Init(Id, log);
-            LocaleHelper.Init(Id, GetReplacements);
-            foreach (var item in new LocaleHelper($"{Id}.Locale.json").GetAvailableLanguages())
-            {
-                GameManager.instance.localizationManager.AddSource(item.LocaleId, item);
-            }
+            LocaleHelper.Init(Id, Name, GetReplacements);
 
-            GameManager.instance.localizationManager.onActiveDictionaryChanged +=
-                LocaleHelper.OnActiveDictionaryChanged;
+            foreach (var item in new LocaleHelper($"{Id}.Locale.json").GetAvailableLanguages())
+                locMan.AddSource(item.LocaleId, item);
+
+            locMan.onActiveDictionaryChanged += LocaleHelper.OnActiveDictionaryChanged;
 
             var harmony = new Harmony("StarQ.WorkflowKit");
             harmony.PatchAll(Assembly.GetExecutingAssembly());

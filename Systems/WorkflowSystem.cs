@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,9 +17,9 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-namespace StarQWorkflowKit
+namespace StarQWorkflowKit.Systems
 {
-    public partial class PrefabHelper : GameSystemBase
+    public partial class WorkflowSystem : GameSystemBase
     {
         private PrefabSystem prefabSystem;
         private EntityQuery allAssets;

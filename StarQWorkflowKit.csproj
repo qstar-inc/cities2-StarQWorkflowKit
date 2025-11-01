@@ -3,8 +3,8 @@
     <Configurations>Debug;Release</Configurations>
     <AssemblyName>StarQWorkflowKit</AssemblyName>
     <AssemblyTitle>StarQ's Workflow Kit</AssemblyTitle>
+    <Version>2.1.2</Version>
     <Authors>StarQ</Authors>
-    <Version>2.0.6</Version>
     <!--The file where mod information which is required for publishing mod on PDX mods are stored-->
     <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
   </PropertyGroup>
@@ -83,7 +83,7 @@
     <None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
     <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
   </ItemGroup>
-  <Target Name="GetResources" AfterTargets="DeployWIP">
+  <Target Name="GetAdditionalFiles" AfterTargets="DeployWIP">
     <ItemGroup>
       <AdditionalFilesToDeploy Include="Resources\**\*.*" />
     </ItemGroup>

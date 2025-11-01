@@ -1,8 +1,4 @@
 {
-  "Options.SECTION[StarQWorkflowKit.StarQWorkflowKit.Mod]": "StarQ's Workflow Kit",
-  "Options.TAB[StarQWorkflowKit.StarQWorkflowKit.Mod.MainTab]": "Principal",
-  "Options.TAB[StarQWorkflowKit.StarQWorkflowKit.Mod.AboutTab]": "Acerca de",
-  "Options.TAB[StarQWorkflowKit.StarQWorkflowKit.Mod.LogTab]": "Registros",
   "Options.GROUP[StarQWorkflowKit.StarQWorkflowKit.Mod.PrefabSaver]": "Guardador del Prefab",
   "Options.GROUP[StarQWorkflowKit.StarQWorkflowKit.Mod.PrefabPackager]": "Empaquetador de Prefab",
   "Options.GROUP[StarQWorkflowKit.StarQWorkflowKit.Mod.PrefabModifier]": "Modificador de Prefab",
@@ -57,18 +53,6 @@
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.ShowEditorCatsTypeBased]": "Al habilitar esto se añadirá una nueva categoría prefab en el panel de menú Editor/Dev Agregar objetos, basada en el tipo prefab. (Se hara en cada inicio del juego mientras esté activo)\n{StarQWorkflowKit.Mod.EditorCatsWarning}",
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.EnableCats]": "Habilitar la Categoría basada en PrefabType para esta sesión únicamente",
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.EnableCats]": "Al activar esto se añadirá una nueva categoría prefab en el panel de menú Editor/Dev Añadir objetos, basada en el tipo prefab. (Solo para esta sesión)\n{StarQWorkflowKit.Mod.EditorCatsWarning}",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.OpenLog]": "Abrir el Archivo de Registros",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.OpenLog]": "Abre el archivo de registro <.log> con el editor/visor predeterminado.",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.NameText]": "Nombre del Mod",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.NameText]": "El nombre del mod.",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.VersionText]": "Versión del Mod",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.VersionText]": "La versión actual del mod.",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.AuthorText]": "Autor",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.AuthorText]": "El autor del mod.",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.BMaCLink]": "Cómprame un café",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.BMaCLink]": "Apoya al autor del mod.",
-  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.Discord]": "Discord",
-  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.Discord]": "Comentarios/Sugerencias para el mod en el servidor Cities: Skylines Modding.",
   "StarQWorkflowKit.Mod.JSONPath": "- **C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab\\\\en-US.json**\n- **StreamingData~\\\\Prefab\\\\en-US.json**\n- **F:\\\\Whatever\\\\Folder\\\\Wherever\\\\File.json**\n",
   "StarQWorkflowKit.Mod.PrefabPath1": "- **C:\\\\Users\\\\StarQ\\\\AppData\\\\LocalLow\\\\Colossal Order\\\\Cities Skylines II\\\\StreamingData~\\\\Prefab**\n",
   "StarQWorkflowKit.Mod.PrefabPath2": "- **StreamingData~\\\\Prefab**\n",
@@ -84,5 +68,5 @@
   "StarQWorkflowKit.Mod.PrefabID": "El PrefabID es el nombre del prefab que se muestra en la lista de Prefab del editor, no en el nombre localizado.",
   "StarQWorkflowKit.Mod.EditorCatsWarning": "IMPORTANTE: Guardar los prefab con esta opción habilitada, guardará la categoría en el archivo correspondiente al prefab. Asegúrese de removerlo manualmente antes de guardar si no desea que se guarde la categoría, o re guarde usando los botones <Prefab Resave> en la parte superior.",
   "StarQWorkflowKit.Mod.ModifiesOriginalPrefab": "Modifica el prefab original.",
-  "StarQWorkflowKit.Mod.NoLog": "No hay registros aún."
+  "StarQWorkflowKit.Mod.FromWFK": "(de StarQ's Workflow Kit)"
 }

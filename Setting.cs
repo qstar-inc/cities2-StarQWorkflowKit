@@ -1,19 +1,15 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using Colossal.IO.AssetDatabase;
 using Colossal.Json;
-using Colossal.PSI.Environment;
 using Game.Modding;
 using Game.Settings;
 using StarQ.Shared.Extensions;
+using StarQWorkflowKit.Systems;
 using Unity.Entities;
-using UnityEngine.Device;
 
 namespace StarQWorkflowKit
 {
-    [FileLocation("ModsSettings/StarQ/ " + nameof(StarQWorkflowKit))]
-    [SettingsUITabOrder(MainTab, AboutTab, LogTab)]
+    [FileLocation("ModsSettings\\StarQ\\" + nameof(StarQWorkflowKit))]
+    [SettingsUITabOrder(GeneralTab, AboutTab, LogTab)]
     [SettingsUIGroupOrder(
         Header,
         PrefabSaver,
@@ -31,7 +27,10 @@ namespace StarQWorkflowKit
     )]
     public class Setting : ModSetting
     {
-        public const string MainTab = "MainTab";
+        public Setting(IMod mod)
+            : base(mod) => SetDefaults();
+
+        public const string GeneralTab = "GeneralTab";
         public const string Header = "Header";
         public const string PrefabSaver = "PrefabSaver";
         public const string PrefabPackager = "PrefabPackager";
@@ -43,23 +42,18 @@ namespace StarQWorkflowKit
         public const string InfoGroup = "InfoGroup";
         public const string LogTab = "LogTab";
 
-        private static readonly PrefabHelper prefab_helper =
-            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabHelper>();
-        private static readonly EditorCategoryBuilder editorCategoryBuilder =
-            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<EditorCategoryBuilder>();
-
-        public Setting(IMod mod)
-            : base(mod) { }
+        private static readonly WorkflowSystem prefab_helper =
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WorkflowSystem>();
 
         [SettingsUIMultilineText]
-        [SettingsUISection(MainTab, Header)]
+        [SettingsUISection(GeneralTab, Header)]
         public string Disclaimer => string.Empty;
 
-        [SettingsUISection(MainTab, PrefabSaver)]
+        [SettingsUISection(GeneralTab, PrefabSaver)]
         [SettingsUITextInput]
         public string ResavePrefabPath { get; set; } = string.Empty;
 
-        [SettingsUISection(MainTab, PrefabSaver)]
+        [SettingsUISection(GeneralTab, PrefabSaver)]
         [SettingsUIButton]
         [SettingsUIButtonGroup("ResavePrefab")]
         public bool ResavePrefab
@@ -67,7 +61,7 @@ namespace StarQWorkflowKit
             set { prefab_helper.SaveAsset(ResavePrefabPath, 1); }
         }
 
-        [SettingsUISection(MainTab, PrefabSaver)]
+        [SettingsUISection(GeneralTab, PrefabSaver)]
         [SettingsUIButton]
         [SettingsUIButtonGroup("ResavePrefab")]
         public bool ResavePrefabT
@@ -75,7 +69,7 @@ namespace StarQWorkflowKit
             set { prefab_helper.SaveAsset(ResavePrefabPath, 0); }
         }
 
-        [SettingsUISection(MainTab, PrefabSaver)]
+        [SettingsUISection(GeneralTab, PrefabSaver)]
         [SettingsUIButton]
         [SettingsUIButtonGroup("ResavePrefab")]
         public bool ResavePrefabB
@@ -83,7 +77,7 @@ namespace StarQWorkflowKit
             set { prefab_helper.SaveAsset(ResavePrefabPath, 3); }
         }
 
-        [SettingsUISection(MainTab, PrefabPackager)]
+        [SettingsUISection(GeneralTab, PrefabPackager)]
         [SettingsUITextInput]
         public string CreatePackagePath { get; set; } = string.Empty;
 
@@ -95,7 +89,7 @@ namespace StarQWorkflowKit
         //    set { prefab_helper.SaveAsset(CreatePackagePath, 2); }
         //}
 
-        [SettingsUISection(MainTab, PrefabPackager)]
+        [SettingsUISection(GeneralTab, PrefabPackager)]
         [SettingsUIButton]
         [SettingsUIButtonGroup("CreatePackage")]
         public bool CreatePackageAny
@@ -103,39 +97,39 @@ namespace StarQWorkflowKit
             set { prefab_helper.CreatePackage(CreatePackagePath, direct: true); }
         }
 
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         [SettingsUITextInput]
         public string Path { get; set; } = string.Empty;
 
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         [SettingsUITextInput]
         public string AssetPackToAdd { get; set; } = string.Empty;
 
         [SettingsUIButtonGroup("AssetPack")]
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddAssetPack
         {
             set { prefab_helper.AddAssetPack(Path, AssetPackToAdd); }
         }
 
         [SettingsUIButtonGroup("AssetPack")]
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool RemoveAssetPack
         {
             set { prefab_helper.RemoveAssetPacks(Path); }
         }
 
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         [SettingsUITextInput]
         public string UIGroupToAdd { get; set; } = string.Empty;
 
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddUIGroup
         {
             set { prefab_helper.AddUIGroup(Path, UIGroupToAdd); }
         }
 
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         [SettingsUITextInput]
         public string EditorAssetCategoryOverride { get; set; } = string.Empty;
 
@@ -144,7 +138,7 @@ namespace StarQWorkflowKit
         //public string EditorAssetCategoryOverridePath { get; set; } = string.Empty;
 
         [SettingsUIButtonGroup("EditorAssetCategoryOverride")]
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddEditorAssetCategoryOverrideInclude
         {
             set
@@ -157,7 +151,7 @@ namespace StarQWorkflowKit
         }
 
         [SettingsUIButtonGroup("EditorAssetCategoryOverride")]
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddEditorAssetCategoryOverrideExclude
         {
             set
@@ -174,21 +168,21 @@ namespace StarQWorkflowKit
         //public string RemoveObsoletesPath { get; set; } = string.Empty;
 
         [SettingsUIButtonGroup("PrefabAdd")]
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddUIIcon
         {
             set { prefab_helper.AddUIIcon(Path); }
         }
 
         [SettingsUIButtonGroup("PrefabAdd")]
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddPlaceableObject
         {
             set { prefab_helper.AddPlaceableObject(Path); }
         }
 
         [SettingsUIButtonGroup("PrefabRemove")]
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool RemoveObsoletes
         {
             set { prefab_helper.RemoveObsoletes(Path); }
@@ -199,33 +193,38 @@ namespace StarQWorkflowKit
         //public string RemoveSpawnablesPath { get; set; } = string.Empty;
 
         [SettingsUIButtonGroup("PrefabRemove")]
-        [SettingsUISection(MainTab, PrefabModifier)]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool RemoveSpawnables
         {
             set { prefab_helper.RemoveSpawnables(Path); }
         }
 
-        [SettingsUISection(MainTab, LocaleMaker)]
+        [SettingsUISection(GeneralTab, LocaleMaker)]
         [SettingsUITextInput]
         public string LangPath { get; set; } = string.Empty;
 
-        [SettingsUISection(MainTab, LocaleMaker)]
+        [SettingsUISection(GeneralTab, LocaleMaker)]
         [SettingsUITextInput]
         public string LangId { get; set; } = "en-US";
 
-        [SettingsUISection(MainTab, LocaleMaker)]
+        [SettingsUISection(GeneralTab, LocaleMaker)]
         public bool ConvertLocale
         {
             set { prefab_helper.ConvertLocale(LangPath, LangId); }
         }
 
-        [SettingsUISection(MainTab, EditorModification)]
+        [SettingsUISection(GeneralTab, EditorModification)]
         public bool ShowEditorCatsTypeBased { get; set; } = false;
 
-        [SettingsUISection(MainTab, EditorModification)]
+        [SettingsUISection(GeneralTab, EditorModification)]
         public bool EnableCats
         {
-            set { editorCategoryBuilder.EnableCats(); }
+            set
+            {
+                World
+                    .DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<EditorCategoryBuilder>()
+                    .EnableCats();
+            }
         }
 
         public override void SetDefaults() { }
@@ -234,47 +233,25 @@ namespace StarQWorkflowKit
         public string NameText => Mod.Name;
 
         [SettingsUISection(AboutTab, InfoGroup)]
-        public string VersionText => Mod.Version;
+        public string VersionText => VariableHelper.AddDevSuffix(Mod.Version);
 
         [SettingsUISection(AboutTab, InfoGroup)]
-        public string AuthorText => "StarQ";
+        public string AuthorText => VariableHelper.StarQ;
 
-        [SettingsUIButtonGroup("Social")]
         [SettingsUIButton]
+        [SettingsUIButtonGroup("Social")]
         [SettingsUISection(AboutTab, InfoGroup)]
         public bool BMaCLink
         {
-            set
-            {
-                try
-                {
-                    Application.OpenURL($"https://buymeacoffee.com/starq");
-                }
-                catch (Exception e)
-                {
-                    LogHelper.SendLog($"{e}");
-                }
-            }
+            set => VariableHelper.OpenBMAC();
         }
 
-        [SettingsUIButtonGroup("Social")]
         [SettingsUIButton]
+        [SettingsUIButtonGroup("Social")]
         [SettingsUISection(AboutTab, InfoGroup)]
         public bool Discord
         {
-            set
-            {
-                try
-                {
-                    Application.OpenURL(
-                        $"https://discord.com/channels/1024242828114673724/1353366978210824222"
-                    );
-                }
-                catch (Exception e)
-                {
-                    LogHelper.SendLog($"{e}");
-                }
-            }
+            set => VariableHelper.OpenDiscord("1353366978210824222");
         }
 
         [SettingsUIMultilineText]
@@ -286,20 +263,7 @@ namespace StarQWorkflowKit
         [SettingsUIHidden]
         public bool IsLogMissing
         {
-            get
-            {
-                try
-                {
-                    return !System.IO.File.Exists(
-                        $"{EnvPath.kUserDataPath}/Logs/{nameof(StarQWorkflowKit)}.log"
-                    );
-                }
-                catch (Exception e)
-                {
-                    LogHelper.SendLog(e);
-                    return true;
-                }
-            }
+            get => VariableHelper.CheckLog(Mod.Id);
         }
 
         [SettingsUIButton]
@@ -307,12 +271,7 @@ namespace StarQWorkflowKit
         [SettingsUISection(LogTab, "")]
         public bool OpenLog
         {
-            set
-            {
-                Task.Run(() =>
-                    Process.Start($"{EnvPath.kUserDataPath}/Logs/{nameof(StarQWorkflowKit)}.log")
-                );
-            }
+            set => VariableHelper.OpenLog(Mod.Id);
         }
     }
 }

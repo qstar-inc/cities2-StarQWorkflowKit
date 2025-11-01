@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Game.Prefabs;
 using Game.UI.Editor;
 using HarmonyLib;
+using StarQ.Shared.Extensions;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -14,8 +15,9 @@ public static class Patch_EditorAssetCategorySystem_AddOverrides
             World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
         if (prefabSystem == null)
         {
-            UnityEngine.Debug.LogError(
-                "WorkflowKit EditorAssetCategorySystem Patch failed: PrefabSystem not found."
+            LogHelper.SendLog(
+                "WorkflowKit EditorAssetCategorySystem Patch failed: PrefabSystem not found.",
+                LogLevel.Error
             );
             return true;
         }
