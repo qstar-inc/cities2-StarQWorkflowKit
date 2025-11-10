@@ -11,6 +11,7 @@ This mod modify prefabs in an irreversible way. So, make sure to Backup your loc
 * Prefab Saver: Resave prefab to remove the pesky "m_LargeIcon" and/or "m_FireHazard" issue from any prefab files, create CID if missing or convert prefabs from Text format to Binary format and vice versa.
 * Prefab Packager: Create COK packages from prefabs.
 * Prefab Modifier: Bulk prefab modification to add UI Icons, PlaceableObject, UIGroup, EditorAssetCategoryOverride, AssetPack; remove ObsoleteIdentifiers, SpawnableObject, AssetPack.
+* Bulk Rename Prefab: Bulk rename prefabs safely by adding ObsoleteIdentifiers.
 * Locale Maker: Create vanilla localization files from JSON (I18N) locale.
 * Optional 'EditorAssetCategoryOverride' for all assets based on its prefab type.
 * Auto (Harmony Patch): Sort custom asset's EditorAssetCategoryOverride alphabetically.
@@ -36,11 +37,10 @@ Translations are welcome, join the [Crowdin project](https://crowdin.com/project
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="2.1.2" />
+  <ModVersion Value="2.1.3" />
   <GameVersion Value="1.3.6*" />
   <ChangeLog>
-- Add locales.
-- PDXM CS2 Uploader v2.0.4
+- New 'Bulk Rename Prefab'
   </ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />

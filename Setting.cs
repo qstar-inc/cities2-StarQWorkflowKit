@@ -129,6 +129,20 @@ namespace StarQWorkflowKit
             set { prefab_helper.AddUIGroup(Path, UIGroupToAdd); }
         }
 
+        [SettingsUIButtonGroup("RenamePrefab")]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
+        public bool GetListOfPrefabs
+        {
+            set { prefab_helper.GetListOfPrefabs(Path); }
+        }
+
+        [SettingsUIButtonGroup("RenamePrefab")]
+        [SettingsUISection(GeneralTab, PrefabModifier)]
+        public bool RenamePrefab
+        {
+            set { prefab_helper.RenamePrefab(Path); }
+        }
+
         [SettingsUISection(GeneralTab, PrefabModifier)]
         [SettingsUITextInput]
         public string EditorAssetCategoryOverride { get; set; } = string.Empty;

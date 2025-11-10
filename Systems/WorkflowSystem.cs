@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Colossal.Entities;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
@@ -142,9 +144,8 @@ namespace StarQWorkflowKit.Systems
             string exportFolder = EnvPath.kUserDataPath + "/StreamingData~/~CreatedPackages";
 
             if (!Directory.Exists(exportFolder))
-            {
                 Directory.CreateDirectory(exportFolder);
-            }
+
             foreach (var validPath in validPaths)
             {
                 string validPathToUse = validPath.Trim('/');
@@ -595,29 +596,29 @@ namespace StarQWorkflowKit.Systems
         public void AddAssetPack(string path, string pack)
         {
             List<string> folderNames = GetValidFolders(path);
+            prefabSystem.TryGetPrefab(
+                new PrefabID("AssetPackPrefab", pack),
+                out PrefabBase assetPackPrefab
+            );
+            if (!assetPackPrefab)
+            {
+                assetPackPrefab = ScriptableObject.CreateInstance<AssetPackPrefab>();
+                assetPackPrefab.name = pack;
+
+                AssetDataPath adp_ap = AssetDataPath.Create(
+                    $"StreamingData~/{assetPackPrefab.name}",
+                    $"{assetPackPrefab.name}.Prefab",
+                    EscapeStrategy.None
+                );
+                AssetDatabase
+                    .user.AddAsset(adp_ap, assetPackPrefab)
+                    .Save(ContentType.Text, false, true);
+                LogHelper.SendLog($"Saving {pack}");
+                prefabSystem.UpdatePrefab(assetPackPrefab);
+            }
+
             foreach (var folderName in folderNames)
             {
-                prefabSystem.TryGetPrefab(
-                    new PrefabID("AssetPackPrefab", pack),
-                    out PrefabBase assetPackPrefab
-                );
-                if (!assetPackPrefab)
-                {
-                    assetPackPrefab = ScriptableObject.CreateInstance<AssetPackPrefab>();
-                    assetPackPrefab.name = pack;
-
-                    AssetDataPath adp_ap = AssetDataPath.Create(
-                        $"StreamingData~/{assetPackPrefab.name}",
-                        $"{assetPackPrefab.name}.Prefab",
-                        EscapeStrategy.None
-                    );
-                    AssetDatabase
-                        .user.AddAsset(adp_ap, assetPackPrefab)
-                        .Save(ContentType.Text, false, true);
-                    LogHelper.SendLog($"Saving {pack}");
-                    prefabSystem.UpdatePrefab(assetPackPrefab);
-                }
-
                 var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
                 foreach (Entity entity in allAssetEntities)
                 {
@@ -878,6 +879,157 @@ namespace StarQWorkflowKit.Systems
                     {
                         LogHelper.SendLog("Unknown Error: " + ex.Message);
                     }
+                }
+            }
+        }
+
+        private readonly Dictionary<string, Dictionary<string, string>> toRename = new();
+
+        private bool LoadRenameData()
+        {
+            toRename.Clear();
+
+            string dataFile =
+                $"{EnvPath.kUserDataPath}/ModsData/{nameof(StarQWorkflowKit)}_PrefabRenamer.txt";
+            if (!File.Exists(dataFile))
+            {
+                LogHelper.SendLog($"PrefabRenamer file not found, creating...");
+                File.WriteAllText(
+                    dataFile,
+                    ""
+                        + "# Write the prefab type, old prefab name & new prefab name you want.\n"
+                        + "\n"
+                        + "# Format:              PrefabType   ; OldPrefabName ;  NewPrefabName\n"
+                        + "# Example:           BuildingPrefab ;   School03    ; StarQ School03\n"
+                        + "\n"
+                        + "# If a line start with '#' or '\\' like this one, it will be ignored.\n"
+                        + "# After saving this file, click on the 'Rename Prefab' option again.\n"
+                        + "====================================================================\n\n"
+                        + "BuildingPrefab;School03;StarQ School03"
+                );
+
+                Task.Run(() => Process.Start(dataFile));
+                return false;
+            }
+
+            foreach (string line in File.ReadLines(dataFile))
+            {
+                try
+                {
+                    if (
+                        string.IsNullOrWhiteSpace(line)
+                        || line.StartsWith("name")
+                        || line.StartsWith("#")
+                        || line.StartsWith("/")
+                        || line.StartsWith("=")
+                    )
+                        continue;
+
+                    string[] parts = line.Split(';');
+                    if (parts.Length != 3)
+                    {
+                        LogHelper.SendLog($"Invalid line: {line}");
+                        continue;
+                    }
+
+                    string typeName = parts[0].Trim();
+                    string oldName = parts[1].Trim();
+                    string newName = parts[2].Trim();
+
+                    if (!toRename.TryGetValue(typeName, out var inner))
+                    {
+                        inner = new Dictionary<string, string>();
+                        toRename[typeName] = inner;
+                    }
+
+                    inner[oldName] = newName;
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.SendLog(
+                        $"Error parsing line while LoadRenameData():\n{line}\n{ex.Message}"
+                    );
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void GetListOfPrefabs(string path)
+        {
+            List<string> toLog = new();
+            List<string> folderNames = GetValidFolders(path);
+            foreach (var folderName in folderNames)
+            {
+                var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+                foreach (Entity entity in allAssetEntities)
+                {
+                    prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+                    if (prefabBase.asset == null)
+                        continue;
+                    string oldName = prefabSystem.GetPrefabName(entity);
+                    string prefabType = prefabBase.GetType().Name;
+
+                    if (prefabBase.asset.path.Contains(folderName))
+                    {
+                        toLog.Add($"{prefabType};{oldName}");
+                    }
+                }
+            }
+            toLog.Sort();
+            LogHelper.SendLog($"\nList of prefabs:\n{string.Join('\n', toLog)}");
+            Task.Run(() => Process.Start(LogHelper.logPath));
+        }
+
+        public void RenamePrefab(string path)
+        {
+            if (!LoadRenameData())
+                return;
+
+            List<string> folderNames = GetValidFolders(path);
+            foreach (var folderName in folderNames)
+            {
+                var allAssetEntities = allAssets.ToEntityArray(Allocator.Temp);
+                foreach (Entity entity in allAssetEntities)
+                {
+                    prefabSystem.TryGetPrefab(entity, out PrefabBase prefabBase);
+                    if (prefabBase.asset == null)
+                        continue;
+                    string oldName = prefabSystem.GetPrefabName(entity);
+                    string prefabType = prefabBase.GetType().Name;
+
+                    if (!toRename.TryGetValue(prefabType, out var inner))
+                        continue;
+                    if (!inner.TryGetValue(oldName, out var newName))
+                        continue;
+
+                    if (!prefabBase.asset.path.Contains(folderName))
+                        continue;
+
+                    var contentType = GetPrefabContentType(prefabBase);
+                    ObsoleteIdentifiers ObsoleteIdentifiers =
+                        prefabBase.AddOrGetComponent<ObsoleteIdentifiers>();
+
+                    ObsoleteIdentifiers.m_PrefabIdentifiers ??= new PrefabIdentifierInfo[0];
+                    Array.Resize(
+                        ref ObsoleteIdentifiers.m_PrefabIdentifiers,
+                        ObsoleteIdentifiers.m_PrefabIdentifiers.Length + 1
+                    );
+                    ObsoleteIdentifiers.m_PrefabIdentifiers[^1] = new()
+                    {
+                        m_Name = oldName,
+                        m_Type = prefabType,
+                    };
+                    prefabBase.name = newName;
+
+                    AssetDataPath adp = AssetDataPath.Create(
+                        "StreamingData~/~RenamedPrefabs/" + newName,
+                        newName,
+                        EscapeStrategy.None
+                    );
+                    AssetDatabase.user.AddAsset(adp, prefabBase).Save(contentType, false, true);
+                    LogHelper.SendLog($"Renaming {prefabType}:{oldName} to {prefabType}:{newName}");
                 }
             }
         }
