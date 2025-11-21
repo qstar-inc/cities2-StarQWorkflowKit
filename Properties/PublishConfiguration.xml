@@ -37,10 +37,11 @@ Translations are welcome, join the [Crowdin project](https://crowdin.com/project
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="2.1.3" />
-  <GameVersion Value="1.3.6*" />
+  <ModVersion Value="2.1.5" />
+  <GameVersion Value="1.4*" />
   <ChangeLog>
-- New 'Bulk Rename Prefab'
+- Fixed certain folders not being recognized for scanning.
+- Changed per line logging to bulk logging to increase performance while resaving large number of assets.
   </ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />

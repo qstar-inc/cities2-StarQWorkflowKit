@@ -27,18 +27,10 @@ namespace StarQWorkflowKit
         public static ILog log = LogManager.GetLogger($"{Id}").SetShowsErrorsInUI(false);
         public static Setting m_Setting;
 
-        public static string time = $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
-
         public void OnLoad(UpdateSystem updateSystem)
         {
-            LocalizationManager locMan = GameManager.instance.localizationManager;
             LogHelper.Init(Id, log);
             LocaleHelper.Init(Id, Name, GetReplacements);
-
-            foreach (var item in new LocaleHelper($"{Id}.Locale.json").GetAvailableLanguages())
-                locMan.AddSource(item.LocaleId, item);
-
-            locMan.onActiveDictionaryChanged += LocaleHelper.OnActiveDictionaryChanged;
 
             var harmony = new Harmony("StarQ.WorkflowKit");
             harmony.PatchAll(Assembly.GetExecutingAssembly());

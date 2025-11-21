@@ -83,6 +83,7 @@ namespace StarQWorkflowKit.Systems
             var entities = allAssets.ToEntityArray(Allocator.Temp);
             LogHelper.SendLog($"Checking {entities.Count()} entities.");
             List<string> folderNames = GetValidFolders(path);
+            List<string> saved = new();
             foreach (var folderName in folderNames)
             {
                 int i = 0;
@@ -117,14 +118,14 @@ namespace StarQWorkflowKit.Systems
                         }
                     }
                 }
-                LogHelper.SendLog($"Resaved {i} prefabs");
+                saved.Add($"Resaved {i} prefabs");
                 if (num == 2)
                 {
                     CreatePackage(folderName, true);
                     SaveAsset(path, 1, true);
                 }
             }
-            LogHelper.SendLog($"Done.");
+            LogHelper.SendLog("\n" + string.Join("\n", saved) + "\nDone!");
         }
 
         public void CreatePackage(string path, bool folderValid = false, bool direct = false)
@@ -225,7 +226,7 @@ namespace StarQWorkflowKit.Systems
             string newCid = Colossal.Hash128.CreateGuid(outputCokPath).ToString();
             File.WriteAllText(outputCidPath, newCid);
 
-            LogHelper.SendLog($"Created: {outputCokPath}");
+            LogHelper.SendLog($"Created: {outputCokPath.Replace("\\", "/")}");
         }
 
         public void AddEditorAssetCategoryOverrideInclude(string path, string cat)
@@ -710,6 +711,7 @@ namespace StarQWorkflowKit.Systems
             {
                 root = Path.Combine(EnvPath.kCacheDataPath, "Mods");
                 const string prefix = "mods_subscribed/";
+                root = Path.Combine(root, "mods_subscribed");
                 relativePattern = pattern.StartsWith(prefix, StringComparison.Ordinal)
                     ? pattern[prefix.Length..]
                     : pattern;
@@ -719,9 +721,23 @@ namespace StarQWorkflowKit.Systems
                 root = EnvPath.kUserDataPath;
                 relativePattern = pattern;
             }
+            else if (
+                Regex.IsMatch(
+                    pattern,
+                    "LocalLow[\\\\\\/]*Colossal Order[\\\\\\/]*Cities Skylines II[\\\\\\/]*(.+)"
+                )
+            )
+            {
+                var match = Regex.Match(
+                    pattern,
+                    "LocalLow[\\\\\\/]*Colossal Order[\\\\\\/]*Cities Skylines II[\\\\\\/]*(.+)"
+                );
+                root = EnvPath.kUserDataPath;
+                relativePattern = match.Value[0].ToString();
+            }
             else
             {
-                root = $"{EnvPath.kUserDataPath}/StreamingData~";
+                root = $"{Path.Combine(EnvPath.kUserDataPath, "StreamingData~")}";
                 relativePattern = pattern;
             }
 
