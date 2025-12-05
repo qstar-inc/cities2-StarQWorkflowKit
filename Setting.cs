@@ -13,14 +13,14 @@ namespace StarQWorkflowKit
     [SettingsUIGroupOrder(
         Header,
         PrefabSaver,
-        PrefabPackager,
+        //PrefabPackager,
         PrefabModifier,
         LocaleMaker,
         EditorModification
     )]
     [SettingsUIShowGroupName(
         PrefabSaver,
-        PrefabPackager,
+        //PrefabPackager,
         PrefabModifier,
         LocaleMaker,
         EditorModification
@@ -33,7 +33,8 @@ namespace StarQWorkflowKit
         public const string GeneralTab = "GeneralTab";
         public const string Header = "Header";
         public const string PrefabSaver = "PrefabSaver";
-        public const string PrefabPackager = "PrefabPackager";
+
+        //public const string PrefabPackager = "PrefabPackager";
         public const string PrefabModifier = "PrefabModifier";
         public const string LocaleMaker = "LocaleMaker";
         public const string EditorModification = "EditorModification";
@@ -45,41 +46,45 @@ namespace StarQWorkflowKit
         private static readonly WorkflowSystem prefab_helper =
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WorkflowSystem>();
 
+        [Exclude]
+        [SettingsUIHidden]
+        public bool IsGameOrEditor => WorldHelper.IsGameOrEditor;
+
         [SettingsUIMultilineText]
         [SettingsUISection(GeneralTab, Header)]
-        public string Disclaimer => string.Empty;
+        public string DisclaimerWarning => string.Empty;
 
         [SettingsUISection(GeneralTab, PrefabSaver)]
         [SettingsUITextInput]
-        public string ResavePrefabPath { get; set; } = string.Empty;
+        public string PrefabPath { get; set; } = string.Empty;
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUISection(GeneralTab, PrefabSaver)]
-        [SettingsUIButton]
         [SettingsUIButtonGroup("ResavePrefab")]
         public bool ResavePrefab
         {
-            set { prefab_helper.SaveAsset(ResavePrefabPath, 1); }
+            set { prefab_helper.SaveAsset(PrefabPath, 1); }
         }
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUISection(GeneralTab, PrefabSaver)]
-        [SettingsUIButton]
         [SettingsUIButtonGroup("ResavePrefab")]
         public bool ResavePrefabT
         {
-            set { prefab_helper.SaveAsset(ResavePrefabPath, 0); }
+            set { prefab_helper.SaveAsset(PrefabPath, 0); }
         }
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUISection(GeneralTab, PrefabSaver)]
-        [SettingsUIButton]
         [SettingsUIButtonGroup("ResavePrefab")]
         public bool ResavePrefabB
         {
-            set { prefab_helper.SaveAsset(ResavePrefabPath, 3); }
+            set { prefab_helper.SaveAsset(PrefabPath, 3); }
         }
 
-        [SettingsUISection(GeneralTab, PrefabPackager)]
-        [SettingsUITextInput]
-        public string CreatePackagePath { get; set; } = string.Empty;
+        //[SettingsUISection(GeneralTab, PrefabPackager)]
+        //[SettingsUITextInput]
+        //public string CreatePackagePath { get; set; } = string.Empty;
 
         //[SettingsUISection(MainTab, PrefabPackager)]
         //[SettingsUIButton]
@@ -89,12 +94,13 @@ namespace StarQWorkflowKit
         //    set { prefab_helper.SaveAsset(CreatePackagePath, 2); }
         //}
 
-        [SettingsUISection(GeneralTab, PrefabPackager)]
-        [SettingsUIButton]
+        //[SettingsUISection(GeneralTab, PrefabPackager)]
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
+        [SettingsUISection(GeneralTab, PrefabSaver)]
         [SettingsUIButtonGroup("CreatePackage")]
-        public bool CreatePackageAny
+        public bool CreatePackage
         {
-            set { prefab_helper.CreatePackage(CreatePackagePath, direct: true); }
+            set { prefab_helper.CreatePackage(PrefabPath, direct: true); }
         }
 
         [SettingsUISection(GeneralTab, PrefabModifier)]
@@ -105,6 +111,7 @@ namespace StarQWorkflowKit
         [SettingsUITextInput]
         public string AssetPackToAdd { get; set; } = string.Empty;
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("AssetPack")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddAssetPack
@@ -112,6 +119,7 @@ namespace StarQWorkflowKit
             set { prefab_helper.AddAssetPack(Path, AssetPackToAdd); }
         }
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("AssetPack")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool RemoveAssetPack
@@ -123,12 +131,14 @@ namespace StarQWorkflowKit
         [SettingsUITextInput]
         public string UIGroupToAdd { get; set; } = string.Empty;
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddUIGroup
         {
             set { prefab_helper.AddUIGroup(Path, UIGroupToAdd); }
         }
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("RenamePrefab")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool GetListOfPrefabs
@@ -136,6 +146,7 @@ namespace StarQWorkflowKit
             set { prefab_helper.GetListOfPrefabs(Path); }
         }
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("RenamePrefab")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool RenamePrefab
@@ -151,6 +162,7 @@ namespace StarQWorkflowKit
         //[SettingsUITextInput]
         //public string EditorAssetCategoryOverridePath { get; set; } = string.Empty;
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("EditorAssetCategoryOverride")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddEditorAssetCategoryOverrideInclude
@@ -164,6 +176,7 @@ namespace StarQWorkflowKit
             }
         }
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("EditorAssetCategoryOverride")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddEditorAssetCategoryOverrideExclude
@@ -181,6 +194,7 @@ namespace StarQWorkflowKit
         //[SettingsUITextInput]
         //public string RemoveObsoletesPath { get; set; } = string.Empty;
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("PrefabAdd")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddUIIcon
@@ -188,6 +202,7 @@ namespace StarQWorkflowKit
             set { prefab_helper.AddUIIcon(Path); }
         }
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("PrefabAdd")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool AddPlaceableObject
@@ -195,6 +210,7 @@ namespace StarQWorkflowKit
             set { prefab_helper.AddPlaceableObject(Path); }
         }
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("PrefabRemove")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool RemoveObsoletes
@@ -206,6 +222,7 @@ namespace StarQWorkflowKit
         //[SettingsUITextInput]
         //public string RemoveSpawnablesPath { get; set; } = string.Empty;
 
+        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsGameOrEditor))]
         [SettingsUIButtonGroup("PrefabRemove")]
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool RemoveSpawnables
@@ -227,19 +244,19 @@ namespace StarQWorkflowKit
             set { prefab_helper.ConvertLocale(LangPath, LangId); }
         }
 
-        [SettingsUISection(GeneralTab, EditorModification)]
-        public bool ShowEditorCatsTypeBased { get; set; } = false;
+        //[SettingsUISection(GeneralTab, EditorModification)]
+        //public bool ShowEditorCatsTypeBased { get; set; } = false;
 
-        [SettingsUISection(GeneralTab, EditorModification)]
-        public bool EnableCats
-        {
-            set
-            {
-                World
-                    .DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<EditorCategoryBuilder>()
-                    .EnableCats();
-            }
-        }
+        //[SettingsUISection(GeneralTab, EditorModification)]
+        //public bool EnableCats
+        //{
+        //    set
+        //    {
+        //        World
+        //            .DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<EditorCategoryBuilder>()
+        //            .EnableCats();
+        //    }
+        //}
 
         public override void SetDefaults() { }
 

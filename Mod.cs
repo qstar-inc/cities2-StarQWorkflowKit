@@ -7,6 +7,7 @@ using Colossal.Logging;
 using Game;
 using Game.Modding;
 using Game.SceneFlow;
+using Game.UI.Editor;
 using HarmonyLib;
 using StarQ.Shared.Extensions;
 
@@ -39,8 +40,8 @@ namespace StarQWorkflowKit
             m_Setting.RegisterInOptionsUI();
 
             AssetDatabase.global.LoadSettings(Id, m_Setting, new Setting(this));
-            updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.PrefabUpdate);
-            updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.UIUpdate);
+            //updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.PrefabUpdate);
+            //updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.UIUpdate);
         }
 
         public void OnDispose()
@@ -64,6 +65,10 @@ namespace StarQWorkflowKit
                             GameManager.instance.localizationManager.GetSupportedLocales()
                         )
                         + "**"
+                },
+                {
+                    "GetSupportedExtensionsForImageAsset",
+                    string.Join(", ", AssetPicker.kAllThumbnailsFileTypes)
                 },
             };
         }
