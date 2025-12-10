@@ -124,7 +124,7 @@ namespace StarQWorkflowKit
         [SettingsUISection(GeneralTab, PrefabModifier)]
         public bool RemoveAssetPack
         {
-            set { prefab_helper.RemoveAssetPacks(Path); }
+            set { prefab_helper.RemoveAssetPack(Path, AssetPackToAdd); }
         }
 
         [SettingsUISection(GeneralTab, PrefabModifier)]

@@ -223,7 +223,7 @@ namespace StarQWorkflowKit.Systems
             {
                 modDependencies = collector.modDependencies.ToArray<int>(),
                 dlcDependencies = collector
-                    .dlcDependencies.Select((DlcId dlc) => PlatformManager.instance.GetDlcName(dlc))
+                    .dlcDependencies.Select(dlc => PlatformManager.instance.GetDlcName(dlc))
                     .ToArray(),
                 previews = collector.previews.Keys.ToArray(),
             };
@@ -239,12 +239,8 @@ namespace StarQWorkflowKit.Systems
                             null,
                             new object[] { packageName, collector.mainAsset, array, data2, null }
                         );
-                        LogHelper.SendLog("Build: result loaded");
                         Task<PackageAsset> task = (Task<PackageAsset>)result;
-                        LogHelper.SendLog("Build: task loaded");
-
                         PackageAsset pkg = await task;
-
                         LogHelper.SendLog("Build completed: " + packageName);
                     });
                 }
@@ -613,7 +609,26 @@ namespace StarQWorkflowKit.Systems
                 AssetPackPrefab apPrefab = (AssetPackPrefab)assetPackPrefab;
                 AssetPackItem AssetPackItem = prefabBase.AddOrGetComponent<AssetPackItem>();
 
-                AssetPackItem.m_Packs ??= new AssetPackPrefab[0];
+                if (AssetPackItem.m_Packs == null || AssetPackItem.m_Packs.Length == 0)
+                {
+                    AssetPackItem.m_Packs = new AssetPackPrefab[1];
+                    AssetPackItem.m_Packs[0] = apPrefab;
+                }
+                else
+                {
+                    bool alreadyExists = false;
+                    foreach (var packItem in AssetPackItem.m_Packs)
+                    {
+                        if (packItem.name == pack)
+                        {
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+                    if (alreadyExists)
+                        continue;
+                }
+
                 Array.Resize(ref AssetPackItem.m_Packs, AssetPackItem.m_Packs.Length + 1);
                 AssetPackItem.m_Packs[^1] = apPrefab;
 
@@ -621,14 +636,34 @@ namespace StarQWorkflowKit.Systems
             }
         }
 
-        public void RemoveAssetPacks(string path)
+        public void RemoveAssetPack(string path, string pack)
         {
             List<PrefabBase> prefabs = GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
-                prefabBase.Remove<AssetPackItem>();
+                if (!prefabBase.Has<AssetPackItem>())
+                    continue;
 
-                SaveAndContinue(prefabBase, ChangeType.Removing, $"all AssetPackItems");
+                AssetPackItem assetPackItem = prefabBase.GetComponent<AssetPackItem>();
+
+                if (
+                    assetPackItem == null
+                    || assetPackItem.m_Packs == null
+                    || assetPackItem.m_Packs.Length == 0
+                )
+                    prefabBase.Remove<AssetPackItem>();
+
+                if (!assetPackItem.m_Packs.Any(p => p.name == pack))
+                    continue;
+
+                var packs = assetPackItem.m_Packs.ToList();
+                Array.Resize(ref assetPackItem.m_Packs, assetPackItem.m_Packs.Length - 1);
+                if (assetPackItem.m_Packs.Length == 0)
+                    prefabBase.Remove<AssetPackItem>();
+                else
+                    assetPackItem.m_Packs = packs.Where(p => p.name != pack).ToArray();
+
+                SaveAndContinue(prefabBase, ChangeType.Removing, $"AssetPackItem: {pack}");
             }
         }
 
@@ -663,11 +698,11 @@ namespace StarQWorkflowKit.Systems
         {
             List<string> folderNames = GetValidFolders(path);
             List<PrefabBase> prefabs = new();
-            var pm = AssetDatabase.global.resources.prefabsMap;
+            var pm = AssetDatabase.user.GetAssets<PrefabAsset>();
 
-            foreach (var pmItem in pm)
+            foreach (var prefabAsset in pm)
             {
-                PrefabBase? prefabBase = pmItem.Value as PrefabBase;
+                PrefabBase prefabBase = prefabAsset.GetInstance<PrefabBase>();
 
                 if (prefabBase == null || prefabBase.asset == null)
                     continue;
@@ -675,14 +710,12 @@ namespace StarQWorkflowKit.Systems
                 foreach (var folderName in folderNames)
                 {
                     string assetPath = prefabBase.asset.path;
-                    if (
-                        !prefabs.Contains(prefabBase)
-                        && assetPath.Contains(folderName)
-                        && assetPath.EndsWith(".Prefab")
-                    )
+                    if (!prefabs.Contains(prefabBase) && assetPath.Contains(folderName))
                         prefabs.Add(prefabBase);
                 }
             }
+
+            LogHelper.SendLog(prefabs.Count + " prefabs found");
             return prefabs;
         }
 
@@ -1031,7 +1064,10 @@ namespace StarQWorkflowKit.Systems
         {
             string logText;
             if (string.IsNullOrEmpty(text2))
-                logText = $"{changeType} {text1} from {prefabBase.name}";
+                if (changeType == ChangeType.Adding)
+                    logText = $"{changeType} {text1} to {prefabBase.name}";
+                else
+                    logText = $"{changeType} {text1} from {prefabBase.name}";
             else
                 logText = $"{changeType} {text1} from {text2} to {prefabBase.name}";
 

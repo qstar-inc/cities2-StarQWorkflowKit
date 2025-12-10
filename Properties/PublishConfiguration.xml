@@ -14,12 +14,12 @@ This mod modify prefabs in an irreversible way. So, make sure to Backup your loc
 * Bulk Rename Prefab: Bulk rename prefabs safely by adding ObsoleteIdentifiers.
 * Locale Maker: Create vanilla localization files from JSON (I18N) locale.
 * Optional 'EditorAssetCategoryOverride' for all assets based on its prefab type.
-* Auto (Harmony Patch): Sort custom asset's EditorAssetCategoryOverride alphabetically.
-* Auto (Harmony Patch): View hidden configurations ([HideInEditor] attribute) on the Editor Inspector panel, now suffixed with '[*H]'.
+* [REMOVED since 1.5.2f1] Auto (Harmony Patch): Sort custom asset's EditorAssetCategoryOverride alphabetically.
+* [REMOVED since 1.5.2f1] Auto (Harmony Patch): View hidden configurations ([HideInEditor] attribute) on the Editor Inspector panel, now suffixed with '[*H]'.
 * That's all... Oh, and the PDX upload script.
 
 ## PDXM CS2 Uploader v2.0.4
-[REMOVED after official Asset Editor update]
+[REMOVED since 1.5.2f1]
 ~~Make sure the Modding Toolchain is completely installed. .NET6.0 (which is part of the Modding Toolchain .NET SDK) is required for the Uploader to open up.~~
 ~~Copy 'PDXM_CS2_Uploader_vX.X.X.exe' to an empty folder outside any CS2 folders. This will be your project folder, just for one mod. Launch the application once to set up folder structure following the on-screen instructions.~~
 VT Scan: https://www.virustotal.com/gui/file/278f418a39e7939fe98c2c335647c28513be2e8bd94837bdd5c36870da55641d
@@ -34,12 +34,11 @@ Translations are welcome, join the [Crowdin project](https://crowdin.com/project
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="3.0.0" />
-  <GameVersion Value="1.5.2*" />
+  <ModVersion Value="3.0.1" />
+  <GameVersion Value="1.5*" />
   <ChangeLog>
-- Now creates packages following the new Asset Editor configuration.
-- Optimized prefab search and modification.
-- Removed PDXM CS2 Uploader.
+- Fix assets not being recognized in some instances.
+- Fix Remove Asset Packs removing all AssetPacks from assets, instead of only the specified one.
   </ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />

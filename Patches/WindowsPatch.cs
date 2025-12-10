@@ -253,3 +253,84 @@
 //        }
 //    }
 //}
+
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Reflection;
+//using System.Reflection.Emit;
+//using System.Runtime.CompilerServices;
+//using Game.SceneFlow;
+//using HarmonyLib;
+//using StarQ.Shared.Extensions;
+
+//[HarmonyPatch]
+//public static class Patch_RegisterPdxSdk
+//{
+//    static MethodBase TargetMethod()
+//    {
+//        // 1. Get the outer method that you see in dnSpy
+//        var outer = typeof(GameManager).GetMethod(
+//            "<RegisterPdxSdk>g__RegisterDatabase|104_10",
+//            BindingFlags.NonPublic | BindingFlags.Instance
+//        );
+
+//        if (outer == null)
+//            LogHelper.SendLog("Could not find outer method");
+
+//        // 2. Look for AsyncStateMachineAttribute
+//        var attr = outer.GetCustomAttribute<AsyncStateMachineAttribute>();
+//        if (attr == null)
+//            LogHelper.SendLog("AsyncStateMachineAttribute not found");
+
+//        // 3. This is the real state machine type
+//        var stateMachineType = attr.StateMachineType;
+//        if (stateMachineType == null)
+//            LogHelper.SendLog("State machine type is null");
+
+//        // 4. Patch MoveNext()
+//        var moveNext = stateMachineType.GetMethod(
+//            "MoveNext",
+//            BindingFlags.NonPublic | BindingFlags.Instance
+//        );
+
+//        if (moveNext == null)
+//            LogHelper.SendLog("MoveNext() not found");
+
+//        LogHelper.SendLog("Patching " + moveNext);
+//        return moveNext;
+//    }
+
+//    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+//    {
+//        var list = instructions.ToList();
+
+//        // Look for the "Defer Mods load" string
+//        for (int i = 0; i < list.Count; i++)
+//        {
+//            if (list[i].opcode == OpCodes.Bge || list[i].opcode == OpCodes.Bge_S)
+//            {
+//                // Replace BGE with BR (always go to PRELOAD)
+//                list[i].opcode = OpCodes.Br;
+//            }
+//            //if (
+//            //    list[i].opcode == OpCodes.Ldstr
+//            //    && list[i].operand is string s
+//            //    && s.Contains("Defer Mods load")
+//            //)
+//            //{
+//            //    LogHelper.SendLog(s);
+//            //    // NOP the entire else block or redirect it
+//            //    // Easiest: replace the string + call + following code with NOPs
+//            //    for (int j = i; j < i + 20 && j < list.Count; j++)
+//            //    {
+//            //        list[j].opcode = OpCodes.Nop;
+//            //        list[j].operand = null;
+//            //    }
+//            //}
+//        }
+//        LogHelper.SendLog(list.Count);
+
+//        return list;
+//    }
+//}
