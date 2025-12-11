@@ -545,7 +545,7 @@ namespace StarQWorkflowKit.Systems
 
                     UIObject UIObject = prefabBase.AddOrGetComponent<UIObject>();
 
-                    UIObject.m_Group ??= (UIGroupPrefab)assetCat;
+                    UIObject.m_Group = (UIGroupPrefab)assetCat;
 
                     SaveAndContinue(prefabBase, ChangeType.Adding, $"{uiGroup} UI Group");
                 }

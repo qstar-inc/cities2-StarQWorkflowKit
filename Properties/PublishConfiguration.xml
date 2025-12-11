@@ -34,11 +34,10 @@ Translations are welcome, join the [Crowdin project](https://crowdin.com/project
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="3.0.1" />
+  <ModVersion Value="3.0.2" />
   <GameVersion Value="1.5*" />
   <ChangeLog>
-- Fix assets not being recognized in some instances.
-- Fix Remove Asset Packs removing all AssetPacks from assets, instead of only the specified one.
+- Fix Add UI Group not adding UI Group if one already exists on the prefab.
   </ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />
