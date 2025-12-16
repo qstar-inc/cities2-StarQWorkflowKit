@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Colossal.Entities;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
-using Colossal.PSI.Common;
 using Colossal.PSI.Environment;
 using Game;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.UI.Editor;
-using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using StarQ.Shared.Extensions;
-using Unity.Collections;
+using StarQWorkflowKit.Helper;
 using Unity.Entities;
 using UnityEngine;
 
@@ -39,348 +34,9 @@ namespace StarQWorkflowKit.Systems
 
         protected override void OnUpdate() { }
 
-        public void DoAsset(PrefabBase prefab, int num, bool noLog = false)
-        {
-            ContentType ct = GetPrefabContentType(prefab);
-            if (num == 3 || num == 2)
-                ct = ContentType.Binary;
-            if (num == 0)
-                ct = ContentType.Text;
-            string xt = ct switch
-            {
-                ContentType.Text => " (Text)",
-                ContentType.Binary => " (Binary)",
-                _ => "",
-            };
-            if (prefab.TryGet(out EditorAssetCategoryOverride eaco))
-            {
-                if (eaco.m_IncludeCategories.Length > 0)
-                {
-                    for (int i = 0; i < eaco.m_IncludeCategories.Length; i++)
-                    {
-                        if (eaco.m_IncludeCategories[i].StartsWith("WorkflowKit"))
-                        {
-                            eaco.m_IncludeCategories = eaco
-                                .m_IncludeCategories.Where((value, index) => index != i)
-                                .ToArray();
-                        }
-                    }
-                    if (
-                        eaco.m_IncludeCategories.Length == 0
-                        && (
-                            eaco.m_ExcludeCategories == null || eaco.m_ExcludeCategories.Length == 0
-                        )
-                    )
-                    {
-                        prefab.Remove<EditorAssetCategoryOverride>();
-                    }
-                }
-            }
-
-            if (!noLog)
-                LogHelper.SendLog($"Saving {prefab.name}{xt}");
-            prefab.asset.Save(ct, false, true);
-        }
-
-        public void SaveAsset(string path, int num = 1, bool noLog = false)
-        {
-            var entities = allAssets.ToEntityArray(Allocator.Temp);
-            LogHelper.SendLog($"Checking {entities.Count()} entities.");
-            List<string> folderNames = GetValidFolders(path);
-            List<string> saved = new();
-            foreach (var folderName in folderNames)
-            {
-                int i = 0;
-                foreach (Entity entity in entities)
-                {
-                    if (
-                        EntityManager.TryGetComponent(entity, out PrefabData prefabData)
-                        && prefabSystem.TryGetPrefab(prefabData, out PrefabBase prefabBase)
-                    )
-                    {
-                        if (prefabBase.isReadOnly)
-                            continue;
-
-                        try
-                        {
-                            if (
-                                prefabBase.asset != null
-                                && prefabBase.asset.path != null
-                                && prefabBase.asset.path.Contains(folderName)
-                                && prefabBase.asset.path.EndsWith(".Prefab")
-                            )
-                            {
-                                DoAsset(prefabBase, num, noLog);
-                                i++;
-                                //Mod.log.Info($"DoAsset({prefabBase.name}, {num}, {noLog})");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogHelper.SendLog($"{ex}");
-                        }
-                    }
-                }
-                saved.Add($"Resaved {i} prefabs");
-                if (num == 2)
-                {
-                    CreatePackage(folderName, true);
-                    SaveAsset(path, 1, true);
-                }
-            }
-            LogHelper.SendLog("\n" + string.Join("\n", saved) + "\nDone!");
-        }
-
-        public void CreatePackage(string path, bool folderValid = false, bool direct = false)
-        {
-            List<string> validPaths = folderValid
-                ? new List<string> { path }
-                : GetValidFolders(path);
-
-            if (validPaths == null || validPaths.Count == 0)
-            {
-                LogHelper.SendLog($"Failed to CreatePackage: No valid folder paths found.");
-                return;
-            }
-
-            LogHelper.SendLog("Creating Packages...");
-
-            //string exportFolder = EnvPath.kUserDataPath + "/ImportedData/~CreatedPackages";
-
-            //if (!Directory.Exists(exportFolder))
-            //    Directory.CreateDirectory(exportFolder);
-
-            foreach (var validPath in validPaths)
-            {
-                string validPathToUse = validPath.Trim('/');
-                if (direct)
-                {
-                    string folderName = Path.GetFileName(validPathToUse);
-                    if (folderName.StartsWith(".") || folderName.StartsWith("~"))
-                        continue;
-
-                    //string outputCokPath = Path.Combine(exportFolder, folderName + ".cok");
-                    //string outputCidPath = Path.Combine(exportFolder, folderName + ".cok.cid");
-                    //CreateCokAndCid(outputCokPath, outputCidPath, validPath);
-                    CreateCokAndCidNew(folderName, validPath).Wait();
-                    continue;
-                }
-
-                if (!Directory.EnumerateDirectories(validPathToUse).Any())
-                {
-                    string folderName = Path.GetFileName(validPathToUse);
-                    if (folderName.StartsWith(".") || folderName.StartsWith("~"))
-                        continue;
-
-                    //string outputCokPath = Path.Combine(exportFolder, folderName + ".cok");
-                    //string outputCidPath = Path.Combine(exportFolder, folderName + ".cok.cid");
-                    //CreateCokAndCid(outputCokPath, outputCidPath, validPathToUse);
-                    CreateCokAndCidNew(folderName, validPath).Wait();
-                }
-                else
-                {
-                    foreach (string folderPath in Directory.GetDirectories(validPathToUse))
-                    {
-                        string folderName = Path.GetFileName(folderPath);
-                        if (folderName.StartsWith(".") || folderName.StartsWith("~"))
-                            continue;
-
-                        //string outputCokPath = Path.Combine(exportFolder, folderName + ".cok");
-                        //string outputCidPath = Path.Combine(exportFolder, folderName + ".cok.cid");
-
-                        //CreateCokAndCid(outputCokPath, outputCidPath, folderPath);
-                        CreateCokAndCidNew(folderName, validPath).Wait();
-                    }
-                }
-            }
-        }
-
-        public async Task CreateCokAndCidNew(string packageName, string folderPath)
-        {
-            Type helperType = typeof(PackageHelper);
-
-            MethodInfo method = helperType.GetMethod(
-                "BuildPackage",
-                BindingFlags.NonPublic | BindingFlags.Static
-            );
-
-            if (method == null)
-            {
-                Mod.log.Info("BuildPackage not found");
-                return;
-            }
-
-            DependencyCollector collector = new();
-
-            Dictionary<string, AssetData> assets = GetAllAssets(folderPath);
-            foreach (var asset in assets)
-            {
-                collector.AddAsset(asset.Value, true);
-            }
-
-            AssetData[] array = collector.CompileAllAssets();
-            PackageDependencies.Data data = new()
-            {
-                modDependencies = collector.modDependencies.ToArray<int>(),
-                dlcDependencies = collector
-                    .dlcDependencies.Select(dlc => PlatformManager.instance.GetDlcName(dlc))
-                    .ToArray(),
-                previews = collector.previews.Keys.ToArray(),
-            };
-
-            PackageDependencies.Data data2 = data;
-            if (array.Length != 0)
-            {
-                try
-                {
-                    Colossal.Core.MainThreadDispatcher.RunOnMainThread(async () =>
-                    {
-                        object result = method.Invoke(
-                            null,
-                            new object[] { packageName, collector.mainAsset, array, data2, null }
-                        );
-                        Task<PackageAsset> task = (Task<PackageAsset>)result;
-                        PackageAsset pkg = await task;
-                        LogHelper.SendLog("Build completed: " + packageName);
-                    });
-                }
-                catch (Exception ex)
-                {
-                    LogHelper.SendLog($"Error packaging {packageName}: {ex}", LogLevel.Error);
-                }
-            }
-        }
-
-        public void CreateCokAndCid(string outputCokPath, string outputCidPath, string folderPath)
-        {
-            bool hasTextureFiles = Directory
-                .EnumerateFiles(folderPath, "*.Texture", SearchOption.AllDirectories)
-                .Any();
-
-            if (hasTextureFiles)
-            {
-                LogHelper.SendLog(
-                    $"Skipping package creation for '{folderPath}' because it contains non VT texture files."
-                );
-                return;
-            }
-
-            string pkgJsonPath = Path.Combine(folderPath, "package.json");
-            string pkgDepsPath = Path.Combine(folderPath, "package.deps");
-
-            JArray modDeps = new();
-            JArray dlcDeps = new();
-
-            if (File.Exists(pkgJsonPath) && !File.Exists(pkgDepsPath))
-            {
-                try
-                {
-                    var pkgJson = File.ReadAllText(pkgJsonPath);
-                    JObject jsonObject = JObject.Parse(pkgJson);
-
-                    if (jsonObject["modDependencies"] is JArray modArray)
-                    {
-                        foreach (var item in modArray)
-                        {
-                            if (item.Type == JTokenType.Integer)
-                                modDeps.Add((int)item);
-                            else if (
-                                item.Type == JTokenType.String
-                                && int.TryParse((string)item, out int parsed)
-                            )
-                                modDeps.Add(parsed);
-                        }
-                    }
-
-                    if (jsonObject["dlcDependencies"] is JArray dlcArray)
-                    {
-                        foreach (var item in dlcArray)
-                            if (item.Type == JTokenType.String)
-                                dlcDeps.Add((string)item);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogHelper.SendLog($"package.json is invalid\n{ex.Message}");
-                }
-
-                var output = new JObject
-                {
-                    ["modDependencies"] = modDeps,
-                    ["dlcDependencies"] = dlcDeps,
-                    ["previews"] = new JArray(),
-                };
-                File.WriteAllText(pkgDepsPath, output.ToString(Formatting.Indented));
-            }
-
-            string cidPath = pkgDepsPath + ".cid";
-            if (!File.Exists(cidPath))
-            {
-                string newCidPkg = Colossal.Hash128.CreateGuid(cidPath).ToString();
-                File.WriteAllText(cidPath, newCidPkg);
-            }
-
-            using (FileStream zipFile = File.Create(outputCokPath))
-            using (ZipOutputStream zipStream = new(zipFile))
-            {
-                zipStream.SetLevel(0);
-                foreach (
-                    string filePath in Directory.GetFiles(
-                        folderPath,
-                        "*",
-                        SearchOption.AllDirectories
-                    )
-                )
-                {
-                    string relativePath = Path.GetRelativePath(folderPath, filePath)
-                        .Replace("\\", "/");
-                    string[] parts = relativePath.Split('/');
-
-                    bool shouldSkip = false;
-                    foreach (string part in parts)
-                    {
-                        if (part.StartsWith(".") || part.StartsWith("~"))
-                        {
-                            shouldSkip = true;
-                            break;
-                        }
-                    }
-
-                    if (shouldSkip)
-                        continue;
-
-                    string arcname = relativePath;
-
-                    try
-                    {
-                        ZipEntry entry = new(arcname)
-                        {
-                            CompressionMethod = CompressionMethod.Stored,
-                            DateTime = File.GetLastWriteTime(filePath),
-                        };
-                        zipStream.PutNextEntry(entry);
-
-                        using FileStream fs = File.OpenRead(filePath);
-                        fs.CopyTo(zipStream);
-
-                        zipStream.CloseEntry();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogHelper.SendLog($"Error processing {filePath}: {ex.Message}");
-                    }
-                }
-            }
-
-            string newCid = Colossal.Hash128.CreateGuid(outputCokPath).ToString();
-            File.WriteAllText(outputCidPath, newCid);
-
-            LogHelper.SendLog($"Created: {outputCokPath.Replace("\\", "/")}");
-        }
-
         public void AddEditorAssetCategoryOverrideInclude(string path, string cat)
         {
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
                 bool alreadyExists = false;
@@ -421,7 +77,7 @@ namespace StarQWorkflowKit.Systems
 
         public void AddEditorAssetCategoryOverrideExclude(string path, string cat)
         {
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
                 bool alreadyExists = false;
@@ -466,7 +122,7 @@ namespace StarQWorkflowKit.Systems
 
         public void AddUIIcon(string path)
         {
-            List<PrefabBase> assets = GetValidPrefabs(path);
+            List<PrefabBase> assets = PrefabHelper.GetValidPrefabs(path);
             List<string> extensions = AssetPicker.kAllThumbnailsFileTypes.ToList();
 
             foreach (var prefabBase in assets)
@@ -511,7 +167,7 @@ namespace StarQWorkflowKit.Systems
 
         public void AddPlaceableObject(string path)
         {
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
                 if (prefabBase.Has<PlaceableObject>())
@@ -537,7 +193,7 @@ namespace StarQWorkflowKit.Systems
                 )
             )
             {
-                List<PrefabBase> prefabs = GetValidPrefabs(path);
+                List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
                 foreach (var prefabBase in prefabs)
                 {
                     if (prefabBase.prefab.GetType() == typeof(RenderPrefab))
@@ -554,7 +210,7 @@ namespace StarQWorkflowKit.Systems
 
         public void RemoveObsoletes(string path)
         {
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
                 prefabBase.Remove<ObsoleteIdentifiers>();
@@ -565,7 +221,7 @@ namespace StarQWorkflowKit.Systems
 
         public void RemoveSpawnables(string path)
         {
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
                 prefabBase.Remove<SpawnableObject>();
@@ -598,12 +254,17 @@ namespace StarQWorkflowKit.Systems
                 prefabSystem.UpdatePrefab(assetPackPrefab);
             }
 
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
-                if (prefabBase.prefab.GetType() == typeof(RenderPrefab))
-                    continue;
-                if (prefabBase.prefab.GetType() == typeof(AssetPackPrefab))
+                if (
+                    prefabBase.prefab.GetType() != typeof(ObjectPrefab)
+                    && prefabBase.prefab.GetType() != typeof(ZonePrefab)
+                    && prefabBase.prefab.GetType() != typeof(NetPrefab)
+                    && prefabBase.prefab.GetType() != typeof(AreaPrefab)
+                    && prefabBase.prefab.GetType() != typeof(RoutePrefab)
+                    && prefabBase.prefab.GetType() != typeof(NetLanePrefab)
+                )
                     continue;
 
                 AssetPackPrefab apPrefab = (AssetPackPrefab)assetPackPrefab;
@@ -627,10 +288,10 @@ namespace StarQWorkflowKit.Systems
                     }
                     if (alreadyExists)
                         continue;
-                }
 
-                Array.Resize(ref AssetPackItem.m_Packs, AssetPackItem.m_Packs.Length + 1);
-                AssetPackItem.m_Packs[^1] = apPrefab;
+                    Array.Resize(ref AssetPackItem.m_Packs, AssetPackItem.m_Packs.Length + 1);
+                    AssetPackItem.m_Packs[^1] = apPrefab;
+                }
 
                 SaveAndContinue(prefabBase, ChangeType.Adding, $"AssetPackItem: {pack}");
             }
@@ -638,7 +299,7 @@ namespace StarQWorkflowKit.Systems
 
         public void RemoveAssetPack(string path, string pack)
         {
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
                 if (!prefabBase.Has<AssetPackItem>())
@@ -665,148 +326,6 @@ namespace StarQWorkflowKit.Systems
 
                 SaveAndContinue(prefabBase, ChangeType.Removing, $"AssetPackItem: {pack}");
             }
-        }
-
-        public Dictionary<string, AssetData> GetAllAssets(string path)
-        {
-            Dictionary<string, AssetData> assets = new();
-            List<string> strings = new();
-
-            foreach (
-                AssetData assetData in from asset in AssetDatabase.user.GetAssets<AssetData>(
-                    default
-                )
-                where asset.id.guid.isValid
-                select asset
-            )
-            {
-                if (assetData.path.Contains(path))
-                {
-                    string title = $"{assetData.name} ({assetData.id.guid})";
-                    assets[title] = assetData;
-                    if (!strings.Contains(title))
-                        strings.Add(title);
-                }
-            }
-
-            LogHelper.SendLog($"Collected {assets.Count} assets:\n{string.Join("\n", strings)}");
-
-            return assets;
-        }
-
-        public List<PrefabBase> GetValidPrefabs(string path)
-        {
-            List<string> folderNames = GetValidFolders(path);
-            List<PrefabBase> prefabs = new();
-            var pm = AssetDatabase.user.GetAssets<PrefabAsset>();
-
-            foreach (var prefabAsset in pm)
-            {
-                PrefabBase prefabBase = prefabAsset.GetInstance<PrefabBase>();
-
-                if (prefabBase == null || prefabBase.asset == null)
-                    continue;
-
-                foreach (var folderName in folderNames)
-                {
-                    string assetPath = prefabBase.asset.path;
-                    if (!prefabs.Contains(prefabBase) && assetPath.Contains(folderName))
-                        prefabs.Add(prefabBase);
-                }
-            }
-
-            LogHelper.SendLog(prefabs.Count + " prefabs found");
-            return prefabs;
-        }
-
-        public List<string> GetValidFolders(string pattern)
-        {
-            var results = new List<string>();
-            if (string.IsNullOrEmpty(pattern))
-            {
-                LogHelper.SendLog("Folder list is empty");
-                return results;
-            }
-
-            pattern = pattern.Replace("\\", "/").Trim('/').Replace("\"", "");
-
-            string root;
-            string relativePattern;
-            if (pattern.StartsWith("mods_subscribed"))
-            {
-                root = Path.Combine(EnvPath.kCacheDataPath, "Mods");
-                const string prefix = "mods_subscribed/";
-                root = Path.Combine(root, "mods_subscribed");
-                relativePattern = pattern.StartsWith(prefix, StringComparison.Ordinal)
-                    ? pattern[prefix.Length..]
-                    : pattern;
-            }
-            else if (pattern.StartsWith("ImportedData") || pattern.StartsWith("StreamingData~"))
-            {
-                root = EnvPath.kUserDataPath;
-                relativePattern = pattern;
-            }
-            else if (
-                Regex.IsMatch(
-                    pattern,
-                    "LocalLow[\\/]*Colossal Order[\\/]*Cities Skylines II[\\/]*(.+)"
-                )
-            )
-            {
-                var match = Regex.Match(
-                    pattern,
-                    "LocalLow[\\/]*Colossal Order[\\/]*Cities Skylines II[\\/]*(.+)"
-                );
-                root = EnvPath.kUserDataPath;
-                relativePattern = match.Value[0].ToString();
-            }
-            else
-            {
-                root = $"{Path.Combine(EnvPath.kUserDataPath, "ImportedData")}";
-                relativePattern = pattern;
-            }
-
-            RecursiveGlob(root, relativePattern, ref results);
-
-            LogHelper.SendLog($"Folders to scan: {string.Join(", ", results)}");
-            return results;
-        }
-
-        private void RecursiveGlob(string currentDir, string pattern, ref List<string> results)
-        {
-            if (!pattern.Contains("/"))
-            {
-                try
-                {
-                    foreach (var dir in Directory.GetDirectories(currentDir, pattern))
-                    {
-                        if (dir.StartsWith(".") || dir.StartsWith("~"))
-                            continue;
-                        results.Add($"{dir.Replace("\\", "/")}/");
-                    }
-                }
-                catch { }
-                return;
-            }
-
-            string[] parts = pattern.Split(new[] { '/' }, 2);
-            string currentPattern = parts[0];
-            string remainingPattern = parts[1];
-
-            try
-            {
-                foreach (var match in Directory.GetDirectories(currentDir, currentPattern))
-                {
-                    RecursiveGlob(match, remainingPattern, ref results);
-                }
-            }
-            catch { }
-        }
-
-        public ContentType GetPrefabContentType(PrefabBase prefab)
-        {
-            using Stream stream = prefab.asset.GetReadStream();
-            return stream.ReadByte() != 123 ? ContentType.Binary : ContentType.Text;
         }
 
         public void ConvertLocale(string path, string lang)
@@ -1004,7 +523,7 @@ namespace StarQWorkflowKit.Systems
         public void GetListOfPrefabs(string path)
         {
             List<string> toLog = new();
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
                 toLog.Add($"{prefabBase.GetType().Name}:{prefabBase.name}");
 
@@ -1018,7 +537,7 @@ namespace StarQWorkflowKit.Systems
             if (!LoadRenameData())
                 return;
 
-            List<PrefabBase> prefabs = GetValidPrefabs(path);
+            List<PrefabBase> prefabs = PrefabHelper.GetValidPrefabs(path);
             foreach (var prefabBase in prefabs)
             {
                 string oldName = prefabBase.name;
@@ -1078,7 +597,7 @@ namespace StarQWorkflowKit.Systems
             );
             AssetDatabase
                 .user.AddAsset(adp_main, prefabBase)
-                .Save(GetPrefabContentType(prefabBase), false, true);
+                .Save(PrefabHelper.GetPrefabContentType(prefabBase), false, true);
             LogHelper.SendLog(logText);
             prefabSystem.UpdatePrefab(prefabBase);
         }

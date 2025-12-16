@@ -3,7 +3,7 @@
     <Configurations>Debug;Release</Configurations>
     <AssemblyName>StarQWorkflowKit</AssemblyName>
     <AssemblyTitle>StarQ's Workflow Kit</AssemblyTitle>
-    <Version>3.0.2</Version>
+    <Version>3.0.4</Version>
     <Authors>StarQ</Authors>
     <!--The file where mod information which is required for publishing mod on PDX mods are stored-->
     <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
@@ -19,10 +19,16 @@
     <Reference Include="Colossal.AssetPipeline">
       <Private>false</Private>
     </Reference>
+    <Reference Include="Colossal.Collections">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Colossal.Core">
       <Private>false</Private>
     </Reference>
     <Reference Include="Colossal.Logging">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.IO">
       <Private>false</Private>
     </Reference>
     <Reference Include="Colossal.IO.AssetDatabase">

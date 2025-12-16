@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
@@ -55,6 +56,7 @@ namespace StarQWorkflowKit
 
         public static Dictionary<string, string> GetReplacements()
         {
+            var dlcs = Colossal.PSI.Common.DlcHelper.GetDlcNames();
             return new()
             {
                 {
@@ -70,6 +72,7 @@ namespace StarQWorkflowKit
                     "GetSupportedExtensionsForImageAsset",
                     string.Join(", ", AssetPicker.kAllThumbnailsFileTypes)
                 },
+                { "GetSupportedDLCs", string.Join(", ", dlcs.Select(d => d.Value)) },
             };
         }
     }
