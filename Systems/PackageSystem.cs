@@ -17,6 +17,8 @@ using Game;
 using Game.AssetPipeline;
 using Game.Prefabs;
 using Game.UI.Editor;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using StarQ.Shared.Extensions;
 using StarQWorkflowKit.Helper;
 using Unity.Collections;
@@ -278,113 +280,160 @@ namespace StarQWorkflowKit.Systems
             }
         }
 
+        public bool CheckPacakgeDepFromFiles(string folderPath, out string mDep, out string dDep)
+        {
+            string[] filesToCheck =
+            {
+                Path.Combine(folderPath, "package.deps"),
+                Path.Combine(folderPath, "package.json"),
+            };
+
+            foreach (var file in filesToCheck)
+            {
+                if (!File.Exists(file))
+                    continue;
+
+                try
+                {
+                    var json = File.ReadAllText(file);
+                    var root = JToken.Parse(json);
+
+                    mDep = ReadArrayAsStrings(root["modDependencies"]);
+                    dDep = ReadArrayAsStrings(root["dlcDependencies"]);
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.SendLog(ex.Message, LogLevel.Error);
+                }
+            }
+            mDep = string.Empty;
+            dDep = string.Empty;
+            return false;
+        }
+
+        private static string ReadArrayAsStrings(JToken? token)
+        {
+            if (token is not JArray array)
+                return "";
+
+            //var result = new string[array.Count];
+
+            //for (int i = 0; i < array.Count; i++)
+            //    result[i] = array[i]?.ToString() ?? string.Empty;
+
+            return string.Join(",", array);
+        }
+
         public async Task CreateCokAndCidNew2(string packageName, string folderPath)
         {
+            if (!Directory.Exists(folderPath))
+                return;
+
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             Dictionary<string, AssetData> assetDict = PrefabHelper.GetAllAssets(folderPath);
             AssetData[] assets = assetDict.Values.ToArray();
-            PackageDependencies.Data data = new()
-            {
-                modDependencies = GetModDep(),
-                dlcDependencies = GetDlcDep(),
-                previews = new AssetData[0],
-            };
 
-            PackageDependencies.Data depsData = data;
-            if (assets.Length != 0)
-            {
-                try
+            using (Mod.log.indent.scoped)
+                if (assets.Length != 0)
                 {
-                    string stagingFolder = string.Concat(
-                        new string[]
-                        {
-                            EnvPath.kTempDataPath,
-                            "/",
-                            packageName,
-                            "_staging_",
-                            Guid.NewGuid().ToLowerNoDashString(),
-                        }
+                    bool hasDepData = CheckPacakgeDepFromFiles(
+                        folderPath,
+                        out string mDep,
+                        out string dDep
                     );
 
-                    string backupPath =
-                        AssetDatabase.packages.rootPath + "/." + packageName + "_Backup";
-                    IOUtils.EmptyFolder(backupPath);
-                    IOUtils.CopyFiles(
-                        assets
-                            .Select(a => a.path)
-                            .Concat(assets.Select(a => a.path + ".cid"))
-                            .Distinct(StringComparer.OrdinalIgnoreCase),
-                        backupPath,
-                        EnvPath.kUserDataPath,
-                        true
-                    );
-                    LogHelper.SendLog("Local backup created");
+                    PackageDependencies.Data data = new()
+                    {
+                        modDependencies = GetModDep(mDep ?? Mod.m_Setting.DepsMod ?? ""),
+                        dlcDependencies = GetDlcDep(dDep ?? Mod.m_Setting.DepsDlc ?? ""),
+                        previews = new AssetData[0],
+                    };
 
-                    using AssetDatabase<Colossal.IO.AssetDatabase.Game> contentDb =
-                        AssetDatabase<Colossal.IO.AssetDatabase.Game>.GetInstance(
-                            new Colossal.IO.AssetDatabase.Game(stagingFolder)
-                        );
-                    object obj = null;
+                    PackageDependencies.Data depsData = data;
+
                     try
                     {
-                        contentDb.MarkForDeletion(false);
-                        foreach (AssetData assetData in assets)
-                        {
-                            SourceMeta meta = assetData.GetMeta();
-                            assetData.CopyTo(
-                                contentDb,
-                                AssetDataPath.Create(
-                                    meta.fileName + meta.extension,
-                                    true,
-                                    EscapeStrategy.None
-                                )
-                            );
-                        }
-                        using (contentDb.DisableNotificationsScoped(true))
-                        {
-                            await AssetDatabase.global.RegisterDatabase(contentDb);
-                        }
-                        ResavePrefabsBeforePackaging(contentDb);
-                        BuildPackageBuildVT(contentDb);
-                        PackageDependencies packageDependencies =
-                            contentDb.AddAsset<PackageDependencies>(
-                                AssetDataPath.Create("package", EscapeStrategy.Filename),
-                                default
-                            );
-                        packageDependencies.target = depsData;
-                        packageDependencies.Save(false);
-
-                        PackageAsset finalPackage = AssetDatabase.packages.AddAsset(
-                            packageName,
-                            contentDb
+                        string stagingFolder = string.Concat(
+                            new string[]
+                            {
+                                EnvPath.kTempDataPath,
+                                "/",
+                                packageName,
+                                "_staging_",
+                                Guid.NewGuid().ToLowerNoDashString(),
+                            }
                         );
-                        finalPackage.SaveWithTimestamp(false);
+
+                        string backupPath =
+                            AssetDatabase.packages.rootPath + "/." + packageName + "_Backup";
+                        IOUtils.EmptyFolder(backupPath);
+                        IOUtils.CopyFiles(
+                            assets
+                                .Select(a => a.path)
+                                .Concat(assets.Select(a => a.path + ".cid"))
+                                .Distinct(StringComparer.OrdinalIgnoreCase),
+                            backupPath,
+                            EnvPath.kUserDataPath,
+                            true
+                        );
+                        LogHelper.SendLog("Local backup created");
+
+                        using AssetDatabase<Colossal.IO.AssetDatabase.Game> contentDb =
+                            AssetDatabase<Colossal.IO.AssetDatabase.Game>.GetInstance(
+                                new Colossal.IO.AssetDatabase.Game(stagingFolder)
+                            );
+                        try
+                        {
+                            contentDb.MarkForDeletion(false);
+                            foreach (AssetData assetData in assets)
+                            {
+                                SourceMeta meta = assetData.GetMeta();
+                                assetData.CopyTo(
+                                    contentDb,
+                                    AssetDataPath.Create(
+                                        meta.fileName + meta.extension,
+                                        true,
+                                        EscapeStrategy.None
+                                    )
+                                );
+                            }
+                            using (contentDb.DisableNotificationsScoped(true))
+                            {
+                                await AssetDatabase.global.RegisterDatabase(contentDb);
+                            }
+                            ResavePrefabsBeforePackaging(contentDb);
+                            BuildPackageBuildVT(contentDb);
+                            PackageDependencies packageDependencies =
+                                contentDb.AddAsset<PackageDependencies>(
+                                    AssetDataPath.Create("package", EscapeStrategy.Filename),
+                                    default
+                                );
+                            packageDependencies.target = depsData;
+                            packageDependencies.Save(false);
+
+                            PackageAsset finalPackage = AssetDatabase.packages.AddAsset(
+                                packageName,
+                                contentDb
+                            );
+                            finalPackage.SaveWithTimestamp(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.SendLog(ex, LogLevel.Error);
+                        }
+                        using (AssetDatabase.global.DisableNotificationsScoped(true))
+                        {
+                            await AssetDatabase.global.UnregisterDatabase(contentDb);
+                        }
                     }
                     catch (Exception ex)
                     {
-                        LogHelper.SendLog(ex, LogLevel.Error);
+                        LogHelper.SendLog($"Error packaging {packageName}: {ex}", LogLevel.Error);
                     }
-                    using (AssetDatabase.global.DisableNotificationsScoped(true))
-                    {
-                        await AssetDatabase.global.UnregisterDatabase(contentDb);
-                    }
-                    object obj2 = obj;
-                    if (obj2 != null)
-                    {
-                        if (obj2 is not Exception ex)
-                        {
-                            throw (Exception)obj2;
-                        }
-                        ExceptionDispatchInfo.Capture(ex).Throw();
-                    }
-                    obj = null;
                 }
-                catch (Exception ex)
-                {
-                    LogHelper.SendLog($"Error packaging {packageName}: {ex}", LogLevel.Error);
-                }
-            }
             stopwatch.Stop();
             LogHelper.SendLog($"{packageName} build completed in {stopwatch.Elapsed}s");
         }
@@ -414,20 +463,17 @@ namespace StarQWorkflowKit.Systems
             }
         }
 
-        public int[] GetModDep()
+        public int[] GetModDep(string val)
         {
-            int[] ints = Mod
-                .m_Setting.DepsMod.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            int[] ints = val.Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => int.Parse(x.Trim()))
                 .ToArray();
             return ints;
         }
 
-        public string[] GetDlcDep()
+        public string[] GetDlcDep(string val)
         {
-            var s = Mod
-                .m_Setting.DepsDlc.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .ToList();
+            var s = val.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
             foreach (string ss in s)
             {

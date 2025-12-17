@@ -17,6 +17,8 @@
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.DepsMod]": "Comma separated PDX Mod IDs\nExample: 123456,98765",
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.DepsDlc]": "DLC Dependency Names",
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.DepsDlc]": "Comma separated DLC CodeNames\nCurrently available DLCs:\n{StarQWorkflowKit.Replacement.GetSupportedDLCs}",
+  "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.EnableManualUpload]": "Enable Manual Upload",
+  "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.EnableManualUpload]": "Enables Editor Publisher's hidden manual file upload system, helpful to add other files such as multiple cok files, and/or `.ail` or other mod specification files.",
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.ResavePrefabB]": "Binary Format",
   "Options.OPTION_DESCRIPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.ResavePrefabB]": "Resave all prefabs in binary format; {StarQWorkflowKit.Mod.ResaveReason}.",
   "Options.OPTION[StarQWorkflowKit.StarQWorkflowKit.Mod.Setting.ResavePrefabT]": "Text Format",

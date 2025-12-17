@@ -11,6 +11,7 @@ using Game.SceneFlow;
 using Game.UI.Editor;
 using HarmonyLib;
 using StarQ.Shared.Extensions;
+using StarQWorkflowKit.Systems;
 
 namespace StarQWorkflowKit
 {
@@ -43,6 +44,7 @@ namespace StarQWorkflowKit
             AssetDatabase.global.LoadSettings(Id, m_Setting, new Setting(this));
             //updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.PrefabUpdate);
             //updateSystem.UpdateAfter<EditorCategoryBuilder>(SystemUpdatePhase.UIUpdate);
+            WorldHelper.GetSystem<ToggleManualFiles>();
         }
 
         public void OnDispose()

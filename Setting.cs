@@ -118,6 +118,9 @@ namespace StarQWorkflowKit
             set { packageSystem.CreatePackage(PrefabPath, direct: true); }
         }
 
+        [SettingsUISection(GeneralTab, PrefabSaver)]
+        public bool EnableManualUpload { get; set; } = false;
+
         [SettingsUISection(GeneralTab, PrefabModifier)]
         [SettingsUITextInput]
         public string Path { get; set; } = string.Empty;

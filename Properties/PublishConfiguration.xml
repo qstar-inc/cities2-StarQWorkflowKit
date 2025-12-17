@@ -9,7 +9,8 @@ This mod modify prefabs in an irreversible way. So, make sure to Backup your loc
 
 ## Features
 * Prefab Saver: Resave prefab to remove the pesky "m_LargeIcon" and/or "m_FireHazard" issue from any prefab files, create CID if missing or convert prefabs from Text format to Binary format and vice versa.
-* Prefab Packager: Create COK packages from prefabs.
+* Prefab Packager: Create COK packages from folders, optionally bypass the mod/DLC check to make the process faster.
+* Enable Manual Upload: Activate a hidden Editor feature that allows adding anything else with the published assets.
 * Prefab Modifier: Bulk prefab modification to add UI Icons, PlaceableObject, UIGroup, EditorAssetCategoryOverride, AssetPack; remove ObsoleteIdentifiers, SpawnableObject, AssetPack.
 * Bulk Rename Prefab: Bulk rename prefabs safely by adding ObsoleteIdentifiers.
 * Locale Maker: Create vanilla localization files from JSON (I18N) locale.
@@ -25,7 +26,7 @@ This mod modify prefabs in an irreversible way. So, make sure to Backup your loc
 VT Scan: https://www.virustotal.com/gui/file/278f418a39e7939fe98c2c335647c28513be2e8bd94837bdd5c36870da55641d
 
 ## DISCLAIMER
-This mod modifies experimental custom contents in an irreversible way.
+This mod modifies your custom contents in an irreversible way. Always keep backup.
 The mod author is not responsible for any change in content resulting from its use.
 The mod author is not responsible for any content uploaded using the PDXM CS2 Uploader.
 
@@ -34,10 +35,10 @@ Translations are welcome, join the [Crowdin project](https://crowdin.com/project
 	</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="3.0.4" />
+  <ModVersion Value="3.0.5" />
   <GameVersion Value="1.5*" />
   <ChangeLog>
-- Fix duplicate AssetPacks being added.
+- Add "Manual Upload", a hidden Editor feature that allowing to add anything with the asset package.
   </ChangeLog>
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />
